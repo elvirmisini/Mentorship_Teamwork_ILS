@@ -8,6 +8,7 @@ with open("instances/a_an_example.in.txt", "r") as f:
 #with open("instances/d_dense_schedule.in.txt", "r") as f:
 #with open("instances/e_exceptional_skills.in.txt", "r") as f:
 #with open("instances/f_find_great_mentors.in.txt", "r") as f:
+#with open("instances/class_task.in.txt", "r") as f:
     # read the first line
     c, p = map(int, f.readline().split())
 
@@ -48,14 +49,14 @@ print(contributors)
 print('')
 print("Projects: ")
 print(projects)
-print('')
+#print('')
 
 
 final_assignments = {}
 def asign_and_solve(projects,contributors):
     assignments = {}
     unassigned_projects = []
-    print(len(projects))
+    
     for project in projects:
         assigned_contributors = []
         for skill, level in project['skills'].items():
@@ -80,16 +81,17 @@ def asign_and_solve(projects,contributors):
                     assignments[contributor].append(project['name'])
                 else:
                     assignments[contributor] = [project['name']]
-            else:
-                print(f"No candidates found for project {project['name']}")
+            # else:
+            #     print(f"No candidates found for project {project['name']}")
 
         if assigned_contributors:
-            print(project['name'])
-            for contributor in assigned_contributors:
-                if contributor in assignments:
-                    print(f"{contributor}")
-                else:
-                    print(contributor)
+            continue
+            # print(project['name'])
+            # for contributor in assigned_contributors:
+            #     if contributor in assignments:
+            #         print(f"{contributor}")
+            #     else:
+            #         print(contributor)
         else:
            # print(f"No contributors found for project {project['name']}")
             unassigned_projects.append(project)
@@ -97,11 +99,59 @@ def asign_and_solve(projects,contributors):
         #print(assignments)
         
     #print(f"Unassigned projects: {unassigned_projects}")
-    return {"unasigned":unassigned_projects,"sas":assignments,"contributors":contributors}
+    return {"unassigned":unassigned_projects,"assignments":assignments,"contributors":contributors}
 
+
+#return again for unassigned
 first_result=asign_and_solve(projects,contributors)
+final_assignments=first_result['assignments']
 
-# print(first_result)
 
-# if len(first_result['unasigned'])!=0:
-#      print(asign_and_solve(first_result['unasigned'],first_result['contributors']))
+if len(first_result['unassigned'])!=0:
+    new_one=asign_and_solve(first_result['unassigned'],first_result['contributors'])['assignments']
+
+    for key, value in new_one.items():
+        if key in final_assignments:
+            final_assignments[key].extend(value)
+        else:
+            final_assignments[key] = value
+
+            
+printed_values = set()
+
+
+def fitness(assignments, projects):
+    total_score = 0
+    for project in projects:
+        if project['name'] in assignments.values():
+            total_score += project['score']
+    return total_score
+
+
+result = asign_and_solve(projects, contributors)
+final_assignments = result['assignments']
+final_score = fitness(final_assignments, projects)
+print(f"Final score: {final_score}")
+
+
+
+print()#just a new line
+#save submmision file
+with open("output/a_an_example.out.txt", "w") as f:
+#with open("output/b_better_start_small.out.txt", "w") as f:
+# with open("output/c_collaboration.out.txt", "w") as f:
+#with open("output/d_dense_schedule.out.txt", "w") as f:
+#with open("output/e_exceptional_skills.out.txt", "w") as f:
+#with open("output/f_find_great_mentors.out.txt", "w") as f:
+#with open("output/class_task.out.txt", "w") as f:
+    f.write(str(len(projects)) + "\n")
+    print(str(len(projects)))
+    for value in sorted(set(sum(final_assignments.values(), []))):
+        print(value)
+        f.write(value + "\n")
+        for key, values in sorted(final_assignments.items()):
+            if value in values and value not in printed_values:
+                print(key)
+                f.write(key + " ")
+        printed_values.add(value)
+        f.write("\n")
