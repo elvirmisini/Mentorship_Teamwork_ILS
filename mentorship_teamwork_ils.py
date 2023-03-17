@@ -1,7 +1,6 @@
 from typing import List, Dict
 import random
 
-
 with open("instances/a_an_example.in.txt", "r") as f:
 #with open("instances/b_better_start_small.in.txt", "r") as f:
 #with open("instances/c_collaboration.in.txt", "r") as f:
@@ -49,8 +48,6 @@ print(contributors)
 print('')
 print("Projects: ")
 print(projects)
-#print('')
-
 
 final_assignments = {}
 def asign_and_solve(projects,contributors):
@@ -78,72 +75,61 @@ def asign_and_solve(projects,contributors):
                 contributor = random.choice(candidate_contributors)
                 assigned_contributors.append(contributor)
                 if contributor in assignments:
-                    assignments[contributor].append(project['name'])
+                    if isinstance(assignments[contributor], str):
+                        assignments[contributor] = [assignments[contributor], project['name']]
+                    else:
+                        assignments[contributor].append(project['name'])
                 else:
                     assignments[contributor] = [project['name']]
-            # else:
-            #     print(f"No candidates found for project {project['name']}")
 
         if assigned_contributors:
             continue
-            # print(project['name'])
-            # for contributor in assigned_contributors:
-            #     if contributor in assignments:
-            #         print(f"{contributor}")
-            #     else:
-            #         print(contributor)
         else:
-           # print(f"No contributors found for project {project['name']}")
             unassigned_projects.append(project)
-        #print(contributors)
-        #print(assignments)
-        
-    #print(f"Unassigned projects: {unassigned_projects}")
     return {"unassigned":unassigned_projects,"assignments":assignments,"contributors":contributors}
 
-
-#return again for unassigned
 first_result=asign_and_solve(projects,contributors)
 final_assignments=first_result['assignments']
 
+repeat=True
+while repeat:
+    if len(first_result['unassigned'])!=0:
+        new_one=asign_and_solve(first_result['unassigned'],first_result['contributors'])['assignments']
 
-if len(first_result['unassigned'])!=0:
-    new_one=asign_and_solve(first_result['unassigned'],first_result['contributors'])['assignments']
-
-    for key, value in new_one.items():
-        if key in final_assignments:
-            final_assignments[key].extend(value)
-        else:
-            final_assignments[key] = value
-
-            
-printed_values = set()
+        for key, value in new_one.items():
+            if isinstance(value, str):
+                value = [x.strip() for x in value.split(',')]
+            if isinstance(final_assignments.get(key), str):
+                final_assignments[key] = [final_assignments[key]]
+            final_assignments[key] = final_assignments.get(key, []) + value
+    repeat=False
 
 
 def fitness(assignments, projects):
     total_score = 0
-    for project in projects:
-        if project['name'] in assignments.values():
-            total_score += project['score']
+    for contributor, assigned_projects in assignments.items():
+        for project in assigned_projects:
+            for p in projects:
+                if p['name'] == project:
+                    total_score += p['score']
     return total_score
 
+fitness_score = fitness(final_assignments, projects)
+print()
+print("Fitness score: ", fitness_score)
+print
+printed_values = set()
 
-result = asign_and_solve(projects, contributors)
-final_assignments = result['assignments']
-final_score = fitness(final_assignments, projects)
-print(f"Final score: {final_score}")
 
-
-
-print()#just a new line
 #save submmision file
 with open("output/a_an_example.out.txt", "w") as f:
 #with open("output/b_better_start_small.out.txt", "w") as f:
-# with open("output/c_collaboration.out.txt", "w") as f:
+#with open("output/c_collaboration.out.txt", "w") as f:
 #with open("output/d_dense_schedule.out.txt", "w") as f:
 #with open("output/e_exceptional_skills.out.txt", "w") as f:
 #with open("output/f_find_great_mentors.out.txt", "w") as f:
 #with open("output/class_task.out.txt", "w") as f:
+    final_assignments = {k: v if isinstance(v, list) else [v.strip() for v in v.split(',')] for k, v in final_assignments.items()}
     f.write(str(len(projects)) + "\n")
     print(str(len(projects)))
     for value in sorted(set(sum(final_assignments.values(), []))):
