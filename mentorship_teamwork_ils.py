@@ -2,12 +2,12 @@ from typing import List, Dict
 import random
 
 with open("instances/a_an_example.in.txt", "r") as f:
-#with open("instances/b_better_start_small.in.txt", "r") as f:
-#with open("instances/c_collaboration.in.txt", "r") as f:
-#with open("instances/d_dense_schedule.in.txt", "r") as f:
-#with open("instances/e_exceptional_skills.in.txt", "r") as f:
-#with open("instances/f_find_great_mentors.in.txt", "r") as f:
-#with open("instances/class_task.in.txt", "r") as f:
+# with open("instances/b_better_start_small.in.txt", "r") as f:
+# with open("instances/c_collaboration.in.txt", "r") as f:
+# with open("instances/d_dense_schedule.in.txt", "r") as f:
+# with open("instances/e_exceptional_skills.in.txt", "r") as f:
+# with open("instances/f_find_great_mentors.in.txt", "r") as f:
+# with open("instances/class_task.in.txt", "r") as f:
     # read the first line
     c, p = map(int, f.readline().split())
 
@@ -41,13 +41,13 @@ with open("instances/a_an_example.in.txt", "r") as f:
         projects.append(project)
 
 
-print({'Contributors': c, 'Projects': p})
-print('')
-print("Contributors:")
-print(contributors)
-print('')
-print("Projects: ")
-print(projects)
+# print({'Contributors': c, 'Projects': p})
+# print('')
+# print("Contributors:")
+# print(contributors)
+# print('')
+# print("Projects: ")
+# print(projects)
 
 final_assignments = {}
 def asign_and_solve(projects,contributors):
@@ -105,39 +105,78 @@ while repeat:
     repeat=False
 
 
-def fitness(assignments, projects):
+def fitness(projects, contributors, assignments):
+    cuntributors_current_day = {}
+    for c in contributors:
+        cuntributors_current_day[c] = 0
+
+    final_day = 0
     total_score = 0
-    for contributor, assigned_projects in assignments.items():
-        for project in assigned_projects:
-            for p in projects:
-                if p['name'] == project:
-                    total_score += p['score']
+    for assignmet_project, assignmet_contributors in assignments.items():
+        max_day = 0
+        current_day = 0
+        for p in projects:
+            if p["name"] == assignmet_project:
+                current_day = p["days"] 
+
+
+        for c in assignmet_contributors:
+            cuntributors_current_day[c] = cuntributors_current_day[c] + current_day
+        
+        for c in assignmet_contributors:
+            if c in cuntributors_current_day:
+                if cuntributors_current_day[c] > max_day:
+                    max_day = cuntributors_current_day[c]
+        
+        final_day = max(cuntributors_current_day.values())
+        
+        for c in assignmet_contributors:
+            cuntributors_current_day[c] = max_day
+
+        for p in projects:
+            if p["name"] in assignmet_project:
+                # print("final day ", final_day)
+                if p["best_before"] > final_day:
+                    total_score = total_score + p["score"]
+                else:
+                    total_score = total_score + (p["score"] - (final_day - p["best_before"]))
+        
+        # print(total_score)
+        # print(cuntributors_current_day)
+
     return total_score
 
-fitness_score = fitness(final_assignments, projects)
+result_dict = {}
+for name, skills in final_assignments.items():
+    for skill in skills:
+        if skill in result_dict:
+            result_dict[skill].append(name)
+        else:
+            result_dict[skill] = [name]
+
+fitness_score = fitness(projects, contributors, result_dict)
 print()
 print("Fitness score: ", fitness_score)
-print
 printed_values = set()
 
 
 #save submmision file
 with open("output/a_an_example.out.txt", "w") as f:
-#with open("output/b_better_start_small.out.txt", "w") as f:
-#with open("output/c_collaboration.out.txt", "w") as f:
-#with open("output/d_dense_schedule.out.txt", "w") as f:
+# with open("output/b_better_start_small.out.txt", "w") as f:
+# with open("output/c_collaboration.out.txt", "w") as f:
+# with open("output/d_dense_schedule.out.txt", "w") as f:
 #with open("output/e_exceptional_skills.out.txt", "w") as f:
-#with open("output/f_find_great_mentors.out.txt", "w") as f:
-#with open("output/class_task.out.txt", "w") as f:
+# with open("output/f_find_great_mentors.out.txt", "w") as f:
+# with open("output/class_task.out.txt", "w") as f:
     final_assignments = {k: v if isinstance(v, list) else [v.strip() for v in v.split(',')] for k, v in final_assignments.items()}
     f.write(str(len(projects)) + "\n")
-    print(str(len(projects)))
+    # print(str(len(projects)))
     for value in sorted(set(sum(final_assignments.values(), []))):
-        print(value)
+        # print(value)
         f.write(value + "\n")
         for key, values in sorted(final_assignments.items()):
             if value in values and value not in printed_values:
-                print(key)
+                # print(key)
                 f.write(key + " ")
-        printed_values.add(value)
+        # printed_values.add(value)
         f.write("\n")

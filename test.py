@@ -28,14 +28,14 @@ def calculate_score(projects, contributors, assignments):
 
         for p in projects:
             if p["name"] in assignmet_project:
-                print("final day ", final_day)
+                # print("final day ", final_day)
                 if p["best_before"] > final_day:
                     total_score = total_score + p["score"]
                 else:
                     total_score = total_score + (p["score"] - (final_day - p["best_before"]))
         
-        print(total_score)
-        print(cuntributors_current_day)
+        # print(total_score)
+        # print(cuntributors_current_day)
 
     return total_score
 
@@ -57,4 +57,4 @@ assignments = {
     'WebChat': ['Bob', 'Maria']
 }
 
-print(calculate_score(projects, contributors, assignments))
+print("Fitness score", calculate_score(projects, contributors, assignments))
