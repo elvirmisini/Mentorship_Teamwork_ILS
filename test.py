@@ -3,6 +3,7 @@ def calculate_score(projects, contributors, assignments):
     for c in contributors:
         cuntributors_current_day[c] = 0
 
+    final_day = 0
     total_score = 0
     for assignmet_project, assignmet_contributors in assignments.items():
         max_day = 0
@@ -10,6 +11,7 @@ def calculate_score(projects, contributors, assignments):
         for p in projects:
             if p["name"] == assignmet_project:
                 current_day = p["days"] 
+
 
         for c in assignmet_contributors:
             cuntributors_current_day[c] = cuntributors_current_day[c] + current_day
@@ -19,17 +21,20 @@ def calculate_score(projects, contributors, assignments):
                 if cuntributors_current_day[c] > max_day:
                     max_day = cuntributors_current_day[c]
         
+        final_day = max(cuntributors_current_day.values())
+        
         for c in assignmet_contributors:
             cuntributors_current_day[c] = max_day
 
-        # kjo pjese duhet me u check
         for p in projects:
             if p["name"] in assignmet_project:
-                if p["best_before"] > current_day:
+                print("final day ", final_day)
+                if p["best_before"] > final_day:
                     total_score = total_score + p["score"]
                 else:
-                    total_score = total_score + p["score"] - current_day
-
+                    total_score = total_score + (p["score"] - (final_day - p["best_before"]))
+        
+        print(total_score)
         print(cuntributors_current_day)
 
     return total_score
