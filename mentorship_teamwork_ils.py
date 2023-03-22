@@ -1,13 +1,13 @@
 from typing import List, Dict
 import random
 
-with open("instances/a_an_example.in.txt", "r") as f:
+# with open("instances/a_an_example.in.txt", "r") as f:
 # with open("instances/b_better_start_small.in.txt", "r") as f:
 # with open("instances/c_collaboration.in.txt", "r") as f:
 # with open("instances/d_dense_schedule.in.txt", "r") as f:
 # with open("instances/e_exceptional_skills.in.txt", "r") as f:
 # with open("instances/f_find_great_mentors.in.txt", "r") as f:
-# with open("instances/class_task.in.txt", "r") as f:
+with open("instances/class_task.in.txt", "r") as f:
     # read the first line
     c, p = map(int, f.readline().split())
 
@@ -41,13 +41,14 @@ with open("instances/a_an_example.in.txt", "r") as f:
         projects.append(project)
 
 
-# print({'Contributors': c, 'Projects': p})
-# print('')
-# print("Contributors:")
-# print(contributors)
-# print('')
-# print("Projects: ")
-# print(projects)
+print({'Contributors': c, 'Projects': p})
+print('')
+print("Contributors:")
+print(contributors)
+print('')
+print("Projects: ")
+print(projects)
+
 
 final_assignments = {}
 def asign_and_solve(projects,contributors):
@@ -104,6 +105,10 @@ while repeat:
             final_assignments[key] = final_assignments.get(key, []) + value
     repeat=False
 
+def max_value_for_names(name_dict, name_list):
+    name_values = [name_dict.get(name) for name in name_list]
+    max_value = max(name_values)
+    return max_value
 
 def fitness(projects, contributors, assignments):
     cuntributors_current_day = {}
@@ -119,7 +124,6 @@ def fitness(projects, contributors, assignments):
             if p["name"] == assignmet_project:
                 current_day = p["days"] 
 
-
         for c in assignmet_contributors:
             cuntributors_current_day[c] = cuntributors_current_day[c] + current_day
         
@@ -128,21 +132,22 @@ def fitness(projects, contributors, assignments):
                 if cuntributors_current_day[c] > max_day:
                     max_day = cuntributors_current_day[c]
         
-        final_day = max(cuntributors_current_day.values())
-        
+        final_day = max_value_for_names(cuntributors_current_day, assignmet_contributors)
+
         for c in assignmet_contributors:
             cuntributors_current_day[c] = max_day
 
         for p in projects:
             if p["name"] in assignmet_project:
-                # print("final day ", final_day)
+                # print("final day", final_day)
+                # print("best before", p["best_before"])
                 if p["best_before"] > final_day:
                     total_score = total_score + p["score"]
                 else:
                     total_score = total_score + (p["score"] - (final_day - p["best_before"]))
         
-        # print(total_score)
-        # print(cuntributors_current_day)
+        # print("total score", total_score)
+        # print("current day", cuntributors_current_day, "\n")
 
     return total_score
 
@@ -159,15 +164,17 @@ print()
 print("Fitness score: ", fitness_score)
 printed_values = set()
 
+print("Result")
+print(result_dict)
 
 #save submmision file
-with open("output/a_an_example.out.txt", "w") as f:
+# with open("output/a_an_example.out.txt", "w") as f:
 # with open("output/b_better_start_small.out.txt", "w") as f:
 # with open("output/c_collaboration.out.txt", "w") as f:
 # with open("output/d_dense_schedule.out.txt", "w") as f:
-#with open("output/e_exceptional_skills.out.txt", "w") as f:
+# with open("output/e_exceptional_skills.out.txt", "w") as f:
 # with open("output/f_find_great_mentors.out.txt", "w") as f:
-# with open("output/class_task.out.txt", "w") as f:
+with open("output/class_task.out.txt", "w") as f:
     final_assignments = {k: v if isinstance(v, list) else [v.strip() for v in v.split(',')] for k, v in final_assignments.items()}
     f.write(str(len(projects)) + "\n")
     # print(str(len(projects)))
