@@ -1,21 +1,21 @@
 10
 Archive
-Diell Ilire 
+Bajram Diell 
 Comments
-Diell 
+Flutura 
 Database
 Dardan 
 JoinMeet
-Dardan Ilire 
+Dardan Maria 
 Logging
-Ilire 
+Njomza 
 People
 Flutura 
 Upload
-Dardan Ilire 
+Dardan Maria 
 WebChat
-Diell Maria 
+Dardan Ilire 
 WebServer
-Dardan Njomza 
+Dardan Diell 
 WebSockets
-Diell Maria 
+Diell Ilire 

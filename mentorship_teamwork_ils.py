@@ -1,7 +1,7 @@
-from modules.input_and_output_file_choice import *
+from modules.file_selector import *
 from modules.instance_parse import *
 from modules.fitness import *
-from modules.submission_file import *
+from modules.submission_saver import *
 
 import random
 
@@ -61,5 +61,5 @@ while repeat:
     repeat=False
 
 print("\nFitness score:", get_fitness_value(projects, contributors, final_assignments))
-print("\nResult:", final_assignments)
-save_submission_file(output_file, projects, final_assignments)
+# print("\nResult:", final_assignments)
+save_assignments(output_file, projects, final_assignments)

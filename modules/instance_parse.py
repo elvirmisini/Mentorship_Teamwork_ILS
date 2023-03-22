@@ -1,4 +1,4 @@
-from modules.input_and_output_file_choice import *
+from modules.file_selector import *
 
 with open(input_file, "r") as f:
     # read the first line

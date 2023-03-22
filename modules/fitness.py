@@ -45,8 +45,10 @@ def get_fitness_value(projects, contributors, final_assignments):
                 # print("best before", p["best_before"])
                 if p["best_before"] > final_day:
                     total_score = total_score + p["score"]
-                else:
+                elif (p["score"] - (final_day - p["best_before"])) >= 0:
                     total_score = total_score + (p["score"] - (final_day - p["best_before"]))
+                else:
+                    total_score = total_score + 0
         
         # print("total score", total_score)
         # print("current day", cuntributors_current_day, "\n")
