@@ -1,6 +1,6 @@
 from modules.file_selector import *
 from modules.instance_parse import *
-from modules.fitness import *
+from modules.fitness_calculator import *
 from modules.submission_saver import *
 
 import random
@@ -60,6 +60,7 @@ while repeat:
             final_assignments[key] = final_assignments.get(key, []) + value
     repeat=False
 
-print("\nFitness score:", get_fitness_value(projects, contributors, final_assignments))
+
+print("\nFitness score:", get_the_fitness_value(projects, contributors, convert_info_from_contributor_based_to_project_based(final_assignments)))
 # print("\nResult:", final_assignments)
 save_assignments(output_file, projects, final_assignments)

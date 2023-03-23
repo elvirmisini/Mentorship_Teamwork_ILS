@@ -3,7 +3,7 @@ def save_assignments(output_file_path, project_names, final_assignments):
     with open(output_file_path, "w") as f:
         final_assignments = {k: v if isinstance(v, list) else [v.strip() for v in v.split(',')] for k, v in final_assignments.items()}
         f.write(str(len(project_names)) + "\n")
-        print(str(len(project_names)))
+        # print(str(len(project_names)))
         for value in sorted(set(sum(final_assignments.values(), []))):
             # print(value)
             f.write(value + "\n")
