@@ -9,6 +9,16 @@ from modules.solution_validation import *
 number_of_contributors, number_of_projects, contributors, projects = read_contributors_and_projects(input_file)
 print_contributors_and_projects_info(number_of_contributors, number_of_projects, contributors, projects)
 
+#Implement One Operator: Chose randomly a project, modify best_before and score
+# randomly with a value from -20 to +20, but best_days and score should not be lower than 1
+#see the results generated with this change
+
+selected_project = random.choice(projects)
+random_offset = random.randint(-20, 20)
+selected_project['best_before'] = max(selected_project['best_before'] + random_offset, 1)
+selected_project['score']  = max(selected_project['best_before'] + random_offset, 1)
+
+
 # Assign and solve projects
 first_result = assign_and_solve(projects, contributors)
 final_assignments = first_result['assignments']
