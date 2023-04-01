@@ -88,10 +88,120 @@ def get_only_the_correct_groups(combination_of_projects_and_contributors, projec
     
     return projects_and_contributors
 
+def set_latest_end_day_to_all_contributors_of_a_project(assignment_contributors, contributors_final_work_day):
+    """
+    Sets the latest end work day for all contributors of a project.
+    """
+    latest_work_day = max(contributors_final_work_day.get(name, 0) for name in assignment_contributors)
+    for contributor in assignment_contributors:
+        contributors_final_work_day[contributor] = latest_work_day
+
+
+def get_latest_day_of_all_given_contributors(all_contributors, assignment_contributors):
+    """
+    Given all contributors and the list of assignment contributors, returns the latest work day from those contributors.
+    """
+    latest_work_day = max(all_contributors.get(name, 0) for name in assignment_contributors)
+    return latest_work_day
+
+
+def convert_project_list_to_dictionary(projects):
+    projects_in_dict = {}
+    for project in projects:
+        name = project['name']
+        project_data = project.copy()
+        del project_data['name']
+        projects_in_dict[name] = project_data
+    return projects_in_dict
+
+
+def objective_function(projects, contributors, assignments):
+    contributors_final_work_day = {contributor: 0 for contributor in contributors}
+    total_projects_score = 0
+
+    projects_in_dict = convert_project_list_to_dictionary(projects)
+
+    for assignment_project, assignment_contributors in assignments.items():
+        num_days_to_complete_project = 0
+
+        if not assignment_project in projects_in_dict:
+            print(f"Error. The project {assignment_project} is not correct.")
+            print("Check if the input and output files correspond with each other.")
+            exit()
+
+        project = projects_in_dict[assignment_project]
+
+        num_days_to_complete_project = project["days"]
+        project_best_before_days = project["best_before"]
+        project_score = project["score"]
+
+        # Update the final work day for each contributor assigned to the project.
+        for contributor in assignment_contributors:
+            contributors_final_work_day[contributor] += num_days_to_complete_project
+
+        set_latest_end_day_to_all_contributors_of_a_project(assignment_contributors, contributors_final_work_day)
+
+        # Get the latest end work day of all contributors assigned to the project.
+        end_work_day_of_project = get_latest_day_of_all_given_contributors(contributors_final_work_day, assignment_contributors)
+
+        # Calculate the score of the current project and add it to the total score.
+        if project_best_before_days > end_work_day_of_project:
+            total_projects_score += project_score
+        elif (project_score - (end_work_day_of_project - project_best_before_days)) >= 0:
+            total_projects_score += project_score - (end_work_day_of_project - project_best_before_days)
+        else:
+            total_projects_score += 0
+
+    return total_projects_score
+
+
+def iterated_local_search_with_random_restarts(initial_solution, max_iterations, max_restarts):
+    best_solution = initial_solution
+    best_value = objective_function(projects, contributors, initial_solution)
+
+    restarts = 0
+    while restarts < max_restarts:
+        current_solution = best_solution
+        for i in range(max_iterations):
+            candidate_solution = neighborhood_function(projects, contributors)
+            candidate_value = objective_function(projects, contributors, current_solution)
+            if candidate_value > best_value:
+                current_solution = candidate_solution
+                best_value = candidate_value
+        if objective_function(projects, contributors, current_solution) > best_value:
+            best_solution = current_solution
+            best_value = objective_function(projects, contributors, current_solution)
+        restarts += 1
+    return best_solution
+
+# kta na duhet me e ndrru
+def neighborhood_function(projects, contributors, list_of_tried_projects):
+    random.shuffle(projects)
+    pr = None
+    if projects not in list_of_tried_projects:
+        pr = projects
+
+    combinations, projects_as_dict = get_possible_combinations_of_project_and_contributors(pr, get_possible_combinations_of_projects_and_contributors(pr, contributors))
+    x = get_only_the_correct_groups(combinations, projects_as_dict, contributors)
+    for key in x:
+        x[key] = list(x[key])
+    
+    correct = {}
+    for project in projects:
+        for x_name in x:
+            if x_name == project["name"]:
+                nr_contributors = len(x[x_name])
+                nr_con_in_project = len(project["skills"])
+                if nr_con_in_project == nr_contributors:
+                    correct[x_name] = x[x_name]
+
+    return correct
+    
+
 if __name__ == "__main__":
     number_of_contributors, number_of_projects, contributors, projects = read_contributors_and_projects(input_file)
     # print_contributors_and_projects_info(number_of_contributors, number_of_projects, contributors, projects)
-    random.shuffle(projects)
+    # random.shuffle(projects)
 
     combinations, projects_as_dict = get_possible_combinations_of_project_and_contributors(projects, get_possible_combinations_of_projects_and_contributors(projects, contributors))
     # print("\n", combinations, "\n")
@@ -116,5 +226,12 @@ if __name__ == "__main__":
                 if nr_con_in_project == nr_contributors:
                     correct[x_name] = x[x_name]
 
-    save_assignments(correct, output_file)
-    
+
+    ######################################################################################################################################################
+    # The code implementing Iterated Local Search   
+    ######################################################################################################################################################
+
+
+    final_solution = iterated_local_search_with_random_restarts(correct, 100, 100)
+
+    save_assignments(final_solution, "C:\\Users\\uran_\\Desktop\\mentorship-and-teamwork-validator\\Solutions\\test_test_a.txt")
