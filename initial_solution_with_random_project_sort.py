@@ -163,7 +163,7 @@ def iterated_local_search_with_random_restarts(initial_solution, max_iterations,
     while restarts < max_restarts:
         current_solution = best_solution
         for i in range(max_iterations):
-            candidate_solution = neighborhood_function(projects, contributors)
+            candidate_solution = neighborhood_function(best_solution)
             candidate_value = objective_function(projects, contributors, current_solution)
             if candidate_value > best_value:
                 current_solution = candidate_solution
@@ -174,30 +174,13 @@ def iterated_local_search_with_random_restarts(initial_solution, max_iterations,
         restarts += 1
     return best_solution
 
+
 # kta na duhet me e ndrru
-def neighborhood_function(projects, contributors, list_of_tried_projects):
-    random.shuffle(projects)
-    pr = None
-    if projects not in list_of_tried_projects:
-        pr = projects
+def neighborhood_function(best_solution):
+    new_solution = best_solution
+    return new_solution
 
-    combinations, projects_as_dict = get_possible_combinations_of_project_and_contributors(pr, get_possible_combinations_of_projects_and_contributors(pr, contributors))
-    x = get_only_the_correct_groups(combinations, projects_as_dict, contributors)
-    for key in x:
-        x[key] = list(x[key])
     
-    correct = {}
-    for project in projects:
-        for x_name in x:
-            if x_name == project["name"]:
-                nr_contributors = len(x[x_name])
-                nr_con_in_project = len(project["skills"])
-                if nr_con_in_project == nr_contributors:
-                    correct[x_name] = x[x_name]
-
-    return correct
-    
-
 if __name__ == "__main__":
     number_of_contributors, number_of_projects, contributors, projects = read_contributors_and_projects(input_file)
     # print_contributors_and_projects_info(number_of_contributors, number_of_projects, contributors, projects)
