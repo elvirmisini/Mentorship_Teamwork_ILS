@@ -74,11 +74,26 @@ def get_only_the_correct_groups(combination_of_projects_and_contributors, projec
 
             for project_contributor in project_contributors:
                 contributor_skills = contributors[project_contributor]
+               # other_contributors = set()
+
+               # we should have a list of other contributors of the project and have thair level skills,
+               # so we can add a mentor to the actual contributor
+
                 for contributor_skill, contributor_level in contributor_skills.items():
                     if contributor_skill == pr_skill and contributor_level >= pr_level:
                         list_of_contributors.add(project_contributor)
-                        # print(project_name, "-", project_contributor, " - ", contributor_skill, contributor_level, " - ", pr_skill, pr_level)
-                        
+                        #######################################
+                        print(contributor_level)
+                        if contributor_level == pr_level:
+                            contributor_level += 1
+                        #other_contributors.add(project_contributor)
+                        print(project_contributor)
+                        print(contributor_level)
+                        print('============')
+                       ###########################
+                        #print(project_name, "-", project_contributor, " - ", contributor_skill, contributor_level, " - ", pr_skill, pr_level)
+                        ######
+               # print("Other contributors for", project_name, ":", other_contributors - {project_contributor})
         correct_combination[project_name] = list_of_contributors
     
     projects_and_contributors = {}
@@ -217,4 +232,4 @@ if __name__ == "__main__":
 
     final_solution = iterated_local_search_with_random_restarts(correct, 100, 100)
 
-    save_assignments(final_solution, "C:\\Users\\uran_\\Desktop\\mentorship-and-teamwork-validator\\Solutions\\test_test_a.txt")
+    save_assignments(final_solution, "C:\\Users\\Elvir Misini\\Desktop\\mentorship_teamwork_ils\\output\\test_test_a.txt")
