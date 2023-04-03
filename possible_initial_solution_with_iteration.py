@@ -64,3 +64,4 @@ assignments = solver(projects, contributors)
 
 # Save assignments to output file
 save_assignments(assignments, "C:\\Users\\uran_\\Desktop\\mentorship-and-teamwork-validator\\Solutions\\test_f.txt")
+#save_assignments(assignments, "C:\\Users\\Elvir Misini\\Desktop\\mentorship_teamwork_ils\\output\\test_test_a.txt")
