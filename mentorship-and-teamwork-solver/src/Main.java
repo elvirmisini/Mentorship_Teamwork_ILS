@@ -36,7 +36,7 @@ public class Main {
         }
 
         List<Assignment> finalInitialSolutionAssignment = assignmentList.get(findMaxValueIndex(scores));
-        List<Assignment> finalAssignment = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(finalInitialSolutionAssignment, projects, contributors, 5, 5);
+//        List<Assignment> finalAssignment = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(finalInitialSolutionAssignment, projects, contributors, 5, 5);
 
         OutputWriter.writeContent(finalInitialSolutionAssignment, absoluteOutputFilePath);
         System.out.println("Wrote assignments\n");
@@ -53,7 +53,7 @@ public class Main {
 
     }
 
-    public static int findMaxValueIndex(List<Integer> list) {
+    private static int findMaxValueIndex(List<Integer> list) {
         int maxIndex = 0;
         for (int i = 1; i < list.size(); i++) {
             if (list.get(i) > list.get(maxIndex)) {

@@ -43,9 +43,9 @@ public class Validator {
             return false;
         }
 
-//        if(!areAssignedContributorsToProjectsValid(rawAssignments, contributors, projects)) {
-//            return false;
-//        }
+        if(!areAssignedContributorsToProjectsValid(rawAssignments, contributors, projects)) {
+            return false;
+        }
 
         return true;
     }
@@ -156,98 +156,82 @@ public class Validator {
             completeAssignments.add(new CompleteAssignment(UUID.randomUUID(), project, assignedContributors));
         }
 
-        System.out.println("---------------------------------------------------------------------");
-        for (int i = 0; i < completeAssignments.size(); i++) {
-            checkIfAssignmentIsValid(completeAssignments.get(i).getProject(), completeAssignments.get(i).getContributors());
+        for(int i = 0; i < completeAssignments.size(); i++) {
+            Project project = completeAssignments.get(i).getProject();
+            List<Skill> projectSkills = project.getSkills();
+            List<Contributor> contributorList = completeAssignments.get(i).getContributors();
+
+            List<String> checkedContributorIds = new ArrayList<>();
+            checkedContributorIds.add("");
+            List<String> checkedSkillIds = new ArrayList<>();
+            checkedSkillIds.add("");
+            List<ContributorAndAssignedSkill> contributorsToIncreaseScore = new ArrayList<>();
+
+
+            for(int j = 0; j < contributorList.size(); j++) {
+                Contributor contributor = contributorList.get(j);
+                String contributorId = contributor.getId() + "";
+                List<Skill> contributorSkills = contributor.getSkills();
+
+                int contributorFulfillsAtLeastOneRequiredSkill = 0;
+
+                for(int k = 0; k < projectSkills.size(); k++) {
+                    Skill projectSkill = projectSkills.get(k);
+
+                    for (int t = 0; t < contributorSkills.size(); t++) {
+                        Skill contributorSkill = contributorSkills.get(t);
+
+                        boolean hasSkillWithoutMentor = Objects.equals(projectSkill.getName(), contributorSkill.getName()) && projectSkill.getLevel() <= contributorSkill.getLevel();
+                        boolean hasSkillWithMentor = Objects.equals(projectSkill.getName(), contributorSkill.getName()) && projectSkill.getLevel() == contributorSkill.getLevel() + 1
+                                && contributorHasMentor(projectSkill.getName(), projectSkill.getLevel(), contributorList, contributorId);
+
+                        if(!checkedContributorIds.contains(contributorId) && !checkedSkillIds.contains(projectSkill.getId() + "") && (hasSkillWithoutMentor || hasSkillWithMentor)) {
+                            contributorFulfillsAtLeastOneRequiredSkill++;
+                            if(projectSkill.getLevel() == contributorSkill.getLevel() || projectSkill.getLevel() == contributorSkill.getLevel() + 1) {
+                                contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(contributor, contributorSkill));
+                            }
+                        }
+                    }
+                }
+                if(contributorFulfillsAtLeastOneRequiredSkill == 0) {
+                    System.out.println("Error. Contributor " + contributor.getName() + " does not have any skill for the project " + project.getName());
+                    return false;
+                } else {
+                    increaseContributorsScore(contributorsToIncreaseScore);
+                }
+            }
         }
-
-
-//        for (int i = 0; i < completeAssignments.size(); i++) {
-//            CompleteAssignment currentAssignment = completeAssignments.get(i);
-//            Project currentProject = currentAssignment.getProject();
-//
-//            for (int j = 0; j < currentAssignment.getContributors().size(); j++) {
-//                Contributor currentContributor = currentAssignment.getContributors().get(j);
-//
-//                List<Skill> projectSkills = currentProject.getSkills();
-//                List<Skill> contributorSkills = currentContributor.getSkills();
-//
-//                for(int k = 0; k < projectSkills.size(); k++) {
-//                    Skill projectSkill = projectSkills.get(k);
-//
-//                    for(int t = 0; t < contributorSkills.size(); t++) {
-//                        Skill contributorSkill = contributorSkills.get(t);
-//
-//
-//                    }
-//                }
-//
-//
-//            }
-//        }
 
         return true;
     }
 
-    public static void checkIfAssignmentIsValid(Project projects, List<Contributor> contributors) {
-        System.out.println(projects + " - " + contributors + "\n");
-//        List<Skill> currentProjectSkills = projects.getSkills();
-//        List<ContributorAndAssignedSkill> assignedContributors = new ArrayList<>();
-//        List<String> assignedContributorIds = new ArrayList<>();
-//        assignedContributorIds.add(" ");
-//        List<ContributorAndAssignedSkill> contributorsToIncreaseScore = new ArrayList<>();
-//        List<String> assignedSkillIds = new ArrayList<>();
-//        assignedSkillIds.add(" ");
-//
-//        endSearchForThisProject:
-//        for(int j = 0; j < contributors.size(); j++) {
-//            Contributor currentContributor = contributors.get(j);
-//            List<Skill> currentContributorSkills = currentContributor.getSkills();
-//
-//            for(int k = 0; k < currentProjectSkills.size(); k++) {
-//                Skill currentProjectSkill = currentProjectSkills.get(k);
-//
-//                for(int t = 0; t < currentContributorSkills.size(); t++) {
-//                    Skill currentContributorSkill = currentContributorSkills.get(t);
-//
-//                    if(InitialSolver.isValidAssignment(projects, assignedContributors)) {
-//                        InitialSolver.increaseContributorsScore(contributorsToIncreaseScore);
-//                        break endSearchForThisProject;
-//                    } else {
-//
-//                        if (Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
-//                                currentProjectSkill.getLevel() <= currentContributorSkill.getLevel() &&
-//                                !assignedContributorIds.contains(currentContributor.getId() + "") &&
-//                                !assignedSkillIds.contains(currentProjectSkill.getId() + "")) {
-//
-//                            assignedSkillIds.add(currentProjectSkill.getId() + "");
-//                            assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
-//                            if(currentProjectSkill.getLevel() == currentContributorSkill.getLevel()) {
-//                                contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
-//                            }
-//                        }
-//
-//                        if(Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
-//                                currentProjectSkill.getLevel() == currentContributorSkill.getLevel() + 1 &&
-//                                InitialSolver.contributorHasMentor(currentProjectSkill.getName(), currentProjectSkill.getLevel(), assignedContributors) &&
-//                                !assignedContributorIds.contains(currentContributor.getId() + "") &&
-//                                !assignedSkillIds.contains(currentProjectSkill.getId() + "")) {
-//
-//                            assignedSkillIds.add(currentProjectSkill.getId() + "");
-//                            assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
-//                            contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
-//                        }
-//                    }
-//                }
-//                if(InitialSolver.isValidAssignment(projects, assignedContributors)) {
-//                    InitialSolver.increaseContributorsScore(contributorsToIncreaseScore);
-//                    break endSearchForThisProject;
-//                }
-//                else {
-//                    System.out.println("Wrong");
-//                }
-//            }
-//        }
+    private static boolean contributorHasMentor(String skill, int level, List<Contributor> possibleMentors, String currentContributorId) {
+        for(int i = 0; i < possibleMentors.size(); i++) {
+            Contributor mentor = possibleMentors.get(i);
+            List<Skill> mentorSkills = mentor.getSkills();
+            if (!(mentor.getId() + "").equals(currentContributorId)) {
+                for (int j = 0; j < mentorSkills.size(); j++) {
+                    if(Objects.equals(mentorSkills.get(j).getName(), skill) && mentorSkills.get(j).getLevel() == level) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static void increaseContributorsScore(List<ContributorAndAssignedSkill> contributorAndSkills) {
+        for (int i = 0; i < contributorAndSkills.size(); i++) {
+            List<Skill> contributorSkills = contributorAndSkills.get(i).getContributor().getSkills();
+            String assignedSkillId = contributorAndSkills.get(i).getAssignedSkill().getId() + "";
+            for(int j = 0; j < contributorSkills.size(); j++) {
+                String skillId = contributorSkills.get(j).getId() + "";
+                if (assignedSkillId.equals(skillId)) {
+                    contributorSkills.get(j).setLevel(contributorSkills.get(j).getLevel() + 1);
+                }
+            }
+        }
     }
 
 }
