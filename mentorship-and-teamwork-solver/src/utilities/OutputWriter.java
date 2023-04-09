@@ -15,7 +15,8 @@ public class OutputWriter {
 
         for (int i = 0; i < assignments.size(); i++) {
             if (assignments.get(i).getProject() != null) {
-                correctAssignments.add(new AssignmentInfo(assignments.get(i).getProject().getName(), assignments.get(i).getContributorNames()));
+                correctAssignments.add(new AssignmentInfo(assignments.get(i).getProject().getName(),
+                        assignments.get(i).getContributorNames()));
             }
         }
 

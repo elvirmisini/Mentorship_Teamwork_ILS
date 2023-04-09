@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 public class Main {
 
     public static void main(String[] args) throws Exception {
@@ -36,7 +35,33 @@ public class Main {
         }
 
         List<Assignment> finalInitialSolutionAssignment = assignmentList.get(findMaxValueIndex(scores));
-//        List<Assignment> finalAssignment = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(finalInitialSolutionAssignment, projects, contributors, 5, 5);
+        // List<Assignment> finalAssignment =
+        // IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(finalInitialSolutionAssignment,
+        // projects, contributors, 5, 5);
+
+        System.out.println(finalInitialSolutionAssignment);
+
+        // implementing the Operator
+
+        ///////////////////////
+        // In this implementation, we randomly select two assignments from the current
+        // solution and swap them.
+        // This is done by storing the first assignment in a temporary variable,
+        // replacing it with the second assignment, and then replacing the second
+        // assignment with the temporary variable.
+        // The modified solution is then returned.
+        ///////////////////////
+
+        // Choose two random assignments to swap
+        int index1 = (int) (Math.random() * finalInitialSolutionAssignment.size());
+        int index2 = (int) (Math.random() * finalInitialSolutionAssignment.size());
+
+        // Swap the assignments
+        Assignment temp = finalInitialSolutionAssignment.get(index1);
+        finalInitialSolutionAssignment.set(index1, finalInitialSolutionAssignment.get(index2));
+        finalInitialSolutionAssignment.set(index2, temp);
+        // System.out.println(finalInitialSolutionAssignment);
+        ////////////////////////////////////////////
 
         OutputWriter.writeContent(finalInitialSolutionAssignment, absoluteOutputFilePath);
         System.out.println("Wrote assignments\n");
@@ -44,10 +69,9 @@ public class Main {
         System.out.println("Fitness score: " + Collections.max(scores));
 
         List<RawAssignments> rawAssignments = InputReader.readRawAssignments(absoluteOutputFilePath);
-        if(Validator.areAssignmentsValid(rawAssignments, contributors, projects, absoluteOutputFilePath)) {
+        if (Validator.areAssignmentsValid(rawAssignments, contributors, projects, absoluteOutputFilePath)) {
             System.out.println("The solution is valid!");
-        }
-        else {
+        } else {
             System.out.println("Wrong solution!");
         }
 
