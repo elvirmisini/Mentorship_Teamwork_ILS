@@ -7,6 +7,7 @@ import utilities.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class Main {
 
@@ -29,7 +30,27 @@ public class Main {
             Collections.shuffle(projects);
             List<Assignment> assignments = InitialSolver.solver(contributors, projects);
             assignmentList.add(assignments);
-            fitnessScore = FitnessCalculator.getFitnessScore(assignments, contributors, projects);
+            /////////////////////////////////// Operator
+            Random rand = new Random();
+            // Choose two random days
+            int day1 = rand.nextInt(assignmentList.size());
+            int day2 = rand.nextInt(assignmentList.size());
+
+            // Choose two random assignments from each of the chosen days
+            List<Assignment> assignmentsDay1 = assignmentList.get(day1);
+            List<Assignment> assignmentsDay2 = assignmentList.get(day2);
+            int assignment1Index = rand.nextInt(assignmentsDay1.size());
+            int assignment2Index = rand.nextInt(assignmentsDay2.size());
+            Assignment assignment1 = assignmentsDay1.get(assignment1Index);
+            Assignment assignment2 = assignmentsDay2.get(assignment2Index);
+
+            // Swap the assignments
+            assignmentsDay1.set(assignment1Index, assignment2);
+            assignmentsDay2.set(assignment2Index, assignment1);
+
+            /////////////////// System.out.println(assignmentsDay2);
+
+            fitnessScore = FitnessCalculator.getFitnessScore(assignmentsDay2, contributors, projects);
             scores.add(fitnessScore);
             i++;
         }
@@ -39,10 +60,6 @@ public class Main {
         // IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(finalInitialSolutionAssignment,
         // projects, contributors, 5, 5);
 
-        // System.out.println(finalInitialSolutionAssignment);
-
-        // implementing the Operator
-
         ///////////////////////
         // In this implementation, we randomly select two assignments from the current
         // solution and swap them.
@@ -50,17 +67,17 @@ public class Main {
         // replacing it with the second assignment, and then replacing the second
         // assignment with the temporary variable.
         // The modified solution is then returned.
-        ///////////////////////
+        /////////////////////// One kind of operator
 
-        // Choose two random assignments to swap
-        int index1 = (int) (Math.random() * finalInitialSolutionAssignment.size());
-        int index2 = (int) (Math.random() * finalInitialSolutionAssignment.size());
+        // int index1 = (int) (Math.random() * finalInitialSolutionAssignment.size());
+        // int index2 = (int) (Math.random() * finalInitialSolutionAssignment.size());
 
-        // Swap the assignments
-        Assignment temp = finalInitialSolutionAssignment.get(index1);
-        finalInitialSolutionAssignment.set(index1, finalInitialSolutionAssignment.get(index2));
-        finalInitialSolutionAssignment.set(index2, temp);
-        // System.out.println(finalInitialSolutionAssignment);
+        // // Swap the assignments
+        // Assignment temp = finalInitialSolutionAssignment.get(index1);
+        // finalInitialSolutionAssignment.set(index1,
+        // finalInitialSolutionAssignment.get(index2));
+        // finalInitialSolutionAssignment.set(index2, temp);
+        ////////////////////////////////////////////
         ////////////////////////////////////////////
 
         OutputWriter.writeContent(finalInitialSolutionAssignment, absoluteOutputFilePath);
