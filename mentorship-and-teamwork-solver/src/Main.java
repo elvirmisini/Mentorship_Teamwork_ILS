@@ -39,7 +39,7 @@ public class Main {
         // IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(finalInitialSolutionAssignment,
         // projects, contributors, 5, 5);
 
-        System.out.println(finalInitialSolutionAssignment);
+        // System.out.println(finalInitialSolutionAssignment);
 
         // implementing the Operator
 
