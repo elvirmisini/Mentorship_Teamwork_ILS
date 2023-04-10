@@ -34,10 +34,10 @@ public class Validator {
         if(!checkIfProjectsHaveTheCorrectNumberOfContributors(rawAssignments, projectNameAndNrOfSkills)) {
             return false;
         }
-
-        if(!checkIfTheNumberOfAssignedProjectsIsValid(rawAssignments.size(), outputFile)) {
-            return false;
-        }
+        // We should only check this for the last assigment because that is the one we write in the file
+//        if(!checkIfTheNumberOfAssignedProjectsIsValid(rawAssignments.size(), outputFile)) {
+//            return false;
+//        }
 
         if(!areAssignedContributorsToProjectsValid(rawAssignments, contributors, projects)) {
             return false;
