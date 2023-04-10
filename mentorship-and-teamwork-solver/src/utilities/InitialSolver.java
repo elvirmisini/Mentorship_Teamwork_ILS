@@ -21,10 +21,8 @@ public class InitialSolver {
 
             List<ContributorAndAssignedSkill> assignedContributors = new ArrayList<>();
             List<String> assignedContributorIds = new ArrayList<>();
-            assignedContributorIds.add(" "); // check if it can be deleted
             List<ContributorAndAssignedSkill> contributorsToIncreaseScore = new ArrayList<>();
             List<String> assignedSkillIds = new ArrayList<>();
-            assignedSkillIds.add(" "); // check if it can be deleted
 
             endSearchForThisProject:
             for(int j = 0; j < contributors.size(); j++) {
@@ -49,23 +47,35 @@ public class InitialSolver {
                                     !assignedContributorIds.contains(currentContributor.getId() + "") &&
                                     !assignedSkillIds.contains(currentProjectSkill.getId() + "")) {
 
+                                assignedContributorIds.add(currentContributor.getId() + "");
                                 assignedSkillIds.add(currentProjectSkill.getId() + "");
                                 assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
                                 if(currentProjectSkill.getLevel() == currentContributorSkill.getLevel()) {
                                     contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
                                 }
                             }
-
                             if(Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
                                     currentProjectSkill.getLevel() == currentContributorSkill.getLevel() + 1 &&
                                     contributorHasMentor(currentProjectSkill.getName(), currentProjectSkill.getLevel(), assignedContributors) &&
                                     !assignedContributorIds.contains(currentContributor.getId() + "") &&
                                     !assignedSkillIds.contains(currentProjectSkill.getId() + "")) {
 
+                                assignedContributorIds.add(currentContributor.getId() + "");
                                 assignedSkillIds.add(currentProjectSkill.getId() + "");
                                 assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
                                 contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
                             }
+                            if(currentProjectSkill.getLevel() == 1 &&
+                                    contributorHasMentor(currentProjectSkill.getName(), currentProjectSkill.getLevel(), assignedContributors) &&
+                                    !assignedContributorIds.contains(currentContributor.getId() + "") &&
+                                    !assignedSkillIds.contains(currentProjectSkill.getId() + "")) {
+
+                                assignedContributorIds.add(currentContributor.getId() + "");
+                                currentContributor.getSkills().add(new Skill(currentProjectSkill.getId(), currentProjectSkill.getName(), currentProjectSkill.getLevel()));
+                                assignedSkillIds.add(currentProjectSkill.getId() + "");
+                                assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
+                            }
+
                         }
                     }
                     if(isValidAssignment(currentProject, assignedContributors)) {

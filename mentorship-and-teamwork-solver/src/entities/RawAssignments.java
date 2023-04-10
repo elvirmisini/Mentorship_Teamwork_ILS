@@ -1,5 +1,6 @@
 package entities;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +16,26 @@ public class RawAssignments {
         this.id = id;
         this.projectName = projectName;
         this.contributorNames = contributorNames;
+    }
+
+    public static RawAssignments from(Assignment assignment) {
+        RawAssignments rawAssignments = new RawAssignments();
+        rawAssignments.setId(assignment.getId());
+        rawAssignments.setProjectName(assignment.getProject().getName());
+        rawAssignments.setContributorNames(assignment.getContributorNames());
+        return rawAssignments;
+    }
+
+    public static List<RawAssignments> from(List<Assignment> assignments) {
+        List<RawAssignments> rawAssignments = new ArrayList<>();
+        for (int i = 0; i < assignments.size(); i++) {
+            if(assignments.get(i) != null) {
+                if(assignments.get(i).getProject() != null && assignments.get(i).getContributors() != null) {
+                    rawAssignments.add(from(assignments.get(i)));
+                }
+            }
+        }
+        return rawAssignments;
     }
 
     public UUID getId() {
