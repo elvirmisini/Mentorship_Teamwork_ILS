@@ -65,13 +65,14 @@ public class InitialSolver {
                                 assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
                                 contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
                             }
-                            if(currentProjectSkill.getLevel() == 1 &&
+                            if(!Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
+                                    currentProjectSkill.getLevel() == 1 &&
                                     contributorHasMentor(currentProjectSkill.getName(), currentProjectSkill.getLevel(), assignedContributors) &&
                                     !assignedContributorIds.contains(currentContributor.getId() + "") &&
                                     !assignedSkillIds.contains(currentProjectSkill.getId() + "")) {
 
                                 assignedContributorIds.add(currentContributor.getId() + "");
-                                currentContributor.getSkills().add(new Skill(currentProjectSkill.getId(), currentProjectSkill.getName(), currentProjectSkill.getLevel()));
+                                contributors.get(j).getSkills().add(new Skill(UUID.randomUUID(), currentProjectSkill.getName(), 1));
                                 assignedSkillIds.add(currentProjectSkill.getId() + "");
                                 assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
                             }
@@ -89,7 +90,6 @@ public class InitialSolver {
 
             assignments.add(assignment);
         }
-
 
         return assignments;
     }

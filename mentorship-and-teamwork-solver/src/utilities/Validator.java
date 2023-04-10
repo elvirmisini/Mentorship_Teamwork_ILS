@@ -14,15 +14,15 @@ public class Validator {
             return false;
         }
 
+        if (!checkIsAssignedProjectHasContributors(rawAssignments)) {
+            return false;
+        }
+
         List<String> assignmentContributorNames = rawAssignments.stream().map(RawAssignments::getContributorNames)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
         List<String> contributorNames = contributors.stream().map(Contributor::getName).collect(Collectors.toList());
         if(!checkIfAssignedContributorsExist(assignmentContributorNames, contributorNames)) {
-            return false;
-        }
-
-        if (!checkIsAssignedProjectHaveContributors(rawAssignments)) {
             return false;
         }
 
@@ -39,11 +39,11 @@ public class Validator {
             return false;
         }
 
-        if(!checkIfAssignedContributorsHaveAtLeastOneRequiredProjectSkill(rawAssignments, contributors, projects)) {
+        if(!areAssignedContributorsToProjectsValid(rawAssignments, contributors, projects)) {
             return false;
         }
 
-        if(!areAssignedContributorsToProjectsValid(rawAssignments, contributors, projects)) {
+        if(!checkIfAssignedContributorsHaveAtLeastOneRequiredProjectSkill(rawAssignments, contributors, projects)) {
             return false;
         }
 
@@ -70,10 +70,10 @@ public class Validator {
         return true;
     }
 
-    private static boolean checkIsAssignedProjectHaveContributors(List<RawAssignments> rawAssignments) {
+    private static boolean checkIsAssignedProjectHasContributors(List<RawAssignments> rawAssignments) {
         for(RawAssignments assignment : rawAssignments) {
-            if (assignment.getContributorNames().size() == 0) {
-                System.out.println("Error. Assigned project " + assignment.getContributorNames() + " does not have contributors!");
+            if (assignment.getContributorNames().size() == 0 || assignment.getContributorNames().contains("")) {
+                System.out.println("Error. Assigned project " + assignment.getProjectName() + " does not have contributors!");
                 return false;
             }
         }
@@ -82,18 +82,18 @@ public class Validator {
 
     private static boolean checkIfContributorsWorkInOneProjectPerTime(List<RawAssignments> rawAssignments) {
         for(int i = 0; i < rawAssignments.size(); i++) {
-            if(rawAssignments.size() != new HashSet<>(rawAssignments).size()) {
-                System.out.println("Error. One of contributors in project" + rawAssignments.get(i) + " is working in two positions!");
+            if(rawAssignments.get(i).getContributorNames().size() != new HashSet<>(rawAssignments.get(i).getContributorNames()).size()) {
+                System.out.println("Error. One of contributors in project " + rawAssignments.get(i).getProjectName() + " is working in two positions!");
                 return false;
             }
         }
         return true;
     }
 
-    public static boolean checkIfProjectsHaveTheCorrectNumberOfContributors(List<RawAssignments> rawAssignments, Map<String, Integer> projectNameAndNrOfSkills) {
+    private static boolean checkIfProjectsHaveTheCorrectNumberOfContributors(List<RawAssignments> rawAssignments, Map<String, Integer> projectNameAndNrOfSkills) {
         for(int i = 0; i < rawAssignments.size(); i++) {
             if(rawAssignments.get(i).getContributorNames().size() != projectNameAndNrOfSkills.get(rawAssignments.get(i).getProjectName())) {
-                System.out.println("Error. Project " + rawAssignments.get(i).getContributorNames() + " has wrong number of contributors!");
+                System.out.println("Error. Project " + rawAssignments.get(i).getProjectName() + " has wrong number of contributors!");
                 return false;
             }
         }
@@ -102,8 +102,8 @@ public class Validator {
 
     private static boolean checkIfTheNumberOfAssignedProjectsIsValid(int numberOfAssignedProjects, String outputFile) {
         if(numberOfAssignedProjects != Integer.parseInt(InputReader.readFileContent(outputFile).get(0))) {
-            System.out.println("Error. Wrong number of projects written on output file " + Integer.parseInt(InputReader.readFileContent(outputFile).get(0))
-                    + " is not the same as the number of assigned projects " + numberOfAssignedProjects + "!");
+            System.out.println("Error. The number of projects (" + Integer.parseInt(InputReader.readFileContent(outputFile).get(0)) + ") written on the output file"
+                    + " is not the same as the number of assigned projects (" + numberOfAssignedProjects + ")!");
             return false;
         }
         return true;
@@ -124,11 +124,18 @@ public class Validator {
                 List<String> contributorSkillInfos = contributorSkills.stream().map(Skill::getName).collect(Collectors.toList());
 
                 boolean hasRequiredSkill = false;
-                for (String projectSkill : projectSkillInfos) {
+                for (int k = 0; k < projectSkillInfos.size(); k++) {
+                    String projectSkill = projectSkillInfos.get(k);
+
+                    if (projectMap.get(projectName).getSkills().get(k).getLevel() == 1) {
+                        hasRequiredSkill = true;
+                        break;
+                    }
                     if (contributorSkillInfos.contains(projectSkill)) {
                         hasRequiredSkill = true;
                         break;
                     }
+
                 }
 
                 if (!hasRequiredSkill) {
@@ -167,13 +174,13 @@ public class Validator {
             checkedSkillIds.add("");
             List<ContributorAndAssignedSkill> contributorsToIncreaseScore = new ArrayList<>();
 
+            int contributorFulfillsAtLeastOneRequiredSkill = 0;
 
             for(int j = 0; j < contributorList.size(); j++) {
                 Contributor contributor = contributorList.get(j);
                 String contributorId = contributor.getId() + "";
                 List<Skill> contributorSkills = contributor.getSkills();
-
-                int contributorFulfillsAtLeastOneRequiredSkill = 0;
+                List<String> contributorSkillNames = contributorSkills.stream().map(Skill::getName).collect(Collectors.toList());
 
                 for(int k = 0; k < projectSkills.size(); k++) {
                     Skill projectSkill = projectSkills.get(k);
@@ -185,23 +192,45 @@ public class Validator {
                         boolean hasSkillWithMentor = Objects.equals(projectSkill.getName(), contributorSkill.getName()) && projectSkill.getLevel() == contributorSkill.getLevel() + 1
                                 && contributorHasMentor(projectSkill.getName(), projectSkill.getLevel(), contributorList, contributorId);
 
-                        if(!checkedContributorIds.contains(contributorId) && !checkedSkillIds.contains(projectSkill.getId() + "") && (hasSkillWithoutMentor || hasSkillWithMentor)) {
-                            contributorFulfillsAtLeastOneRequiredSkill++;
-                            if(projectSkill.getLevel() == contributorSkill.getLevel() || projectSkill.getLevel() == contributorSkill.getLevel() + 1) {
-                                contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(contributor, contributorSkill));
+                        boolean hasNoSkillButCanCreateItWithMentor = false;
+                        if(!contributorSkillNames.contains(projectSkill.getName())) {
+                            if(!Objects.equals(projectSkill.getName(), contributorSkill.getName()) && projectSkill.getLevel() == 1) {
+                                List<Contributor> contributorListWithoutCurrentContributor = contributorList.stream()
+                                        .filter(contributor1 -> !(contributor1.getId() + "").equals(contributor.getId() + ""))
+                                        .collect(Collectors.toList());
+
+                                if(contributorHasMentor(projectSkill.getName(), projectSkill.getLevel(), contributorListWithoutCurrentContributor, contributorId)) {
+                                    hasNoSkillButCanCreateItWithMentor = true;
+                                }
+                            }
+                        }
+
+                        if(!checkedContributorIds.contains(contributorId) && !checkedSkillIds.contains(projectSkill.getId() + "") && (hasSkillWithoutMentor || hasSkillWithMentor || hasNoSkillButCanCreateItWithMentor)) {
+                            checkedContributorIds.add(contributorId);
+                            checkedSkillIds.add(projectSkill.getId() + "");
+                            if(hasNoSkillButCanCreateItWithMentor) {
+                                if(!contributorSkillNames.contains(projectSkill.getName())) {
+                                    contributor.getSkills().add(new Skill(UUID.randomUUID(), projectSkill.getName(), 1));
+                                    contributorFulfillsAtLeastOneRequiredSkill++;
+                                }
+                            }
+                            else {
+                                contributorFulfillsAtLeastOneRequiredSkill++;
+                                if(projectSkill.getLevel() == contributorSkill.getLevel() || projectSkill.getLevel() == contributorSkill.getLevel() + 1) {
+                                    contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(contributor, contributorSkill));
+                                }
                             }
                         }
                     }
                 }
-                if(contributorFulfillsAtLeastOneRequiredSkill == 0) {
-                    System.out.println("Error. Contributor " + contributor.getName() + " does not have any skill for the project " + project.getName());
-                    return false;
-                } else {
-                    increaseContributorsScore(contributorsToIncreaseScore);
-                }
+            }
+            if(contributorFulfillsAtLeastOneRequiredSkill == 0) {
+                System.out.println("Error. Contributor does not have any skill for the project " + project.getName());
+                return false;
+            } else {
+                increaseContributorsScore(contributorsToIncreaseScore);
             }
         }
-
         return true;
     }
 
@@ -211,7 +240,7 @@ public class Validator {
             List<Skill> mentorSkills = mentor.getSkills();
             if (!(mentor.getId() + "").equals(currentContributorId)) {
                 for (int j = 0; j < mentorSkills.size(); j++) {
-                    if(Objects.equals(mentorSkills.get(j).getName(), skill) && mentorSkills.get(j).getLevel() == level) {
+                    if(Objects.equals(mentorSkills.get(j).getName(), skill) && mentorSkills.get(j).getLevel() >= level) {
                         return true;
                     }
                 }
@@ -233,5 +262,4 @@ public class Validator {
             }
         }
     }
-
 }

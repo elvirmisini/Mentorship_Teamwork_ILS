@@ -4,28 +4,23 @@ import entities.Assignment;
 import entities.Contributor;
 import entities.Project;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FitnessCalculator {
 
     public static int getFitnessScore(List<Assignment> assignments, List<Contributor> contributors, List<Project> projects) {
-        Map<String, Integer> contributorsFinalWorkDay = new HashMap<>();
-        for(int i = 0; i < contributors.size(); i++) {
-            contributorsFinalWorkDay.put(contributors.get(i).getName(), 0);
-        }
-
+        List<Assignment> filteredAssignments = assignments.stream()
+                .filter(assignment -> assignment.getProject() != null)
+                .filter(assignment -> assignment.getContributors().size() != 0)
+                .collect(Collectors.toList());
+        Map<String, Integer> contributorsFinalWorkDay = contributors.stream().collect(Collectors.toMap(Contributor::getName, contributor -> 0));
         Map<String, Project> projectMap = projects.stream().collect(Collectors.toMap(Project::getName, project -> project));
         int totalScore = 0;
 
-        for(int i = 0; i < assignments.size(); i++) {
-            if (assignments.get(i) == null) {
-                continue;
-            }
-            if (assignments.get(i).getProject() == null) {
-                continue;
-            }
-            String projectName = assignments.get(i).getProject().getName();
+        for(int i = 0; i < filteredAssignments.size(); i++) {
+            String projectName = filteredAssignments.get(i).getProject().getName();
             if(!projectMap.containsKey(projectName)) {
                 System.out.println("Error. The project " + projectName + " does not exist in input!");
                 System.exit(0);
@@ -36,17 +31,15 @@ public class FitnessCalculator {
             int bestBeforeDaysOfProject = project.getBestBefore();
             int projectScore = project.getScore();
 
-            List<String> contributorNames = assignments.get(i).getContributorNames();
+            List<String> contributorNames = filteredAssignments.get(i).getContributorNames();
 
             for(int j = 0; j < contributorNames.size(); j++) {
                 String contributorName = contributorNames.get(j);
-                int oldFinalWorkDay = contributorsFinalWorkDay.get(contributorName);
-                contributorsFinalWorkDay.put(contributorName, oldFinalWorkDay + nrOfDaysToCompleteProject);
+                int newFinalWorkDay = contributorsFinalWorkDay.get(contributorName) + nrOfDaysToCompleteProject;
+                contributorsFinalWorkDay.put(contributorName, newFinalWorkDay);
             }
 
-            setTheSameFinalDayForAllContributorsInProject(contributorNames, contributorsFinalWorkDay);
-            int endWorkDayOfProject = getTheLatestDayOfAllAssignedContributors(contributorNames, contributorsFinalWorkDay);
-
+            int endWorkDayOfProject = updateContributorLastDayToMaxFinalDayAndGetTheMaxFinalDay(contributorNames, contributorsFinalWorkDay);
 
             if(bestBeforeDaysOfProject > endWorkDayOfProject) {
                 totalScore += projectScore;
@@ -63,20 +56,16 @@ public class FitnessCalculator {
         return totalScore;
     }
 
-    private static void setTheSameFinalDayForAllContributorsInProject(List<String> contributorNames, Map<String, Integer> contributorsFinalWorkDay) {
-        int latestFinalDate = Collections.max(contributorsFinalWorkDay.values());
+    private static int updateContributorLastDayToMaxFinalDayAndGetTheMaxFinalDay(List<String> contributorNames, Map<String, Integer> contributorsFinalWorkDay) {
+        int latestFinalDate = 0;
         for(int i = 0; i < contributorNames.size(); i++) {
-            contributorsFinalWorkDay.put(contributorNames.get(i), latestFinalDate);
+            if(latestFinalDate < contributorsFinalWorkDay.get(contributorNames.get(i))) {
+                latestFinalDate = contributorsFinalWorkDay.get(contributorNames.get(i));
+            }
         }
-    }
-
-    private static int getTheLatestDayOfAllAssignedContributors(List<String> contributorNames, Map<String, Integer> contributorsFinalWorkDay) {
-        List<Integer> latestDays = new ArrayList<>();
-        for (int i = 0; i < contributorNames.size(); i++) {
-            latestDays.add(contributorsFinalWorkDay.get(contributorNames.get(i)));
+        for(int j = 0; j < contributorNames.size(); j++) {
+            contributorsFinalWorkDay.put(contributorNames.get(j), latestFinalDate);
         }
-
-        return Collections.max(latestDays);
+        return latestFinalDate;
     }
-
 }

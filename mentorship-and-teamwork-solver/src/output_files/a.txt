@@ -1,6 +1,4 @@
-3
-WebChat
-Bob Maria 
+2
 WebServer
 Anna Bob 
 WebChat

@@ -1,17 +1,15 @@
-8
-People
-Diell 
-Upload
-Ilire Dardan 
+7
+Comments
+Flutura 
 WebChat
-Ilire Diell 
+Bajram Diell 
+People
+Flutura 
+Upload
+Bajram Dardan 
 Database
 Dardan 
-Comments
-Diell 
-Logging
-Ilire 
-WebSockets
-Ilire Diell 
 WebServer
 Ilire Diell 
+WebSockets
+Bajram Flutura 

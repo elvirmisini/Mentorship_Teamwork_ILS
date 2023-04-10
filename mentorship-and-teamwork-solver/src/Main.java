@@ -3,6 +3,9 @@ import entities.Contributor;
 import entities.Project;
 import entities.RawAssignments;
 import utilities.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -76,6 +79,7 @@ public class Main {
         ////////////////////////////////////////////
         ////////////////////////////////////////////
 
+        System.out.println("Fitness score: " + Collections.max(scores));
         OutputWriter.writeContent(finalInitialSolutionAssignment, absoluteOutputFilePath);
         System.out.println("Wrote assignments\n");
 
@@ -85,5 +89,15 @@ public class Main {
         } else {
             System.out.println("Wrong solution!");
         }
+    }
+
+    public static int findMaxValueIndex(List<Integer> list) {
+        int maxIndex = 0;
+        for (int i = 1; i < list.size(); i++) {
+            if (list.get(i) > list.get(maxIndex)) {
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
     }
 }
