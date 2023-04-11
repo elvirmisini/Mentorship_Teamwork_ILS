@@ -27,6 +27,9 @@ public class Test {
         Collections.shuffle(projects, new Random());
 
         List<Assignment> assignments = InitialSolver.solver(contributors, projects);
+//        int fitnessScorex = FitnessCalculator.getFitnessScore(assignments, contributors, projects);
+//        System.out.println("Fitness score: " + fitnessScorex);
+
         List<Assignment> assignmentAfterILS = new ArrayList<>(
                 IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(assignments, 10, projects, contributors, absoluteOutputFilePath)
         );

@@ -3,12 +3,9 @@ package utilities;
 import entities.Assignment;
 import entities.Contributor;
 import entities.Project;
-import entities.RawAssignments;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 public class IteratedLocalSearch {
 
@@ -22,21 +19,21 @@ public class IteratedLocalSearch {
 
             int j = 0;
             while (j < maxIteration) {
-                List<Assignment> R = Tweak(Copy(S), projects, contributors, outputFile);
-                System.out.println("= " + Quality(R, projects, contributors) + " - " +  Quality(S, projects, contributors));
+                List<Assignment> R = Tweak(Copy(S));
+//                System.out.println("Tweaked:: " + Quality(R, projects, contributors));
                 if (Quality(R, projects, contributors) > Quality(S, projects, contributors)) {
                     S = new ArrayList<>(R);
                 }
                 j++;
             }
 
-            System.out.println("? " + Quality(S, projects, contributors) + " - " +  Quality(Best, projects, contributors));
             if(Quality(S, projects, contributors) > Quality(Best, projects, contributors)) {
                 Best = new ArrayList<>(S);
             }
 
             H = NewHomeBase(H, S, projects, contributors);
-            S = Perturb(H, projects, contributors, outputFile);
+            S = Perturb(H);
+//            System.out.println("Perturbed:: " + Quality(S, projects, contributors));
             i++;
         }
         return Best;
@@ -46,19 +43,16 @@ public class IteratedLocalSearch {
         return new ArrayList<>(S);
     }
 
-    private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects, List<Contributor> contributors, String outputFile) {
-        List<Assignment> teakedS = new ArrayList<>(CopyS);
-        Collections.shuffle(teakedS, new Random());
+    private static List<Assignment> Tweak(List<Assignment> CopyS) {
+        // Generate a random index within the bounds of the list (excluding the last element)
+        int index = (int) (Math.random() * (CopyS.size() - 1));
 
-        boolean generatedAValidChange = true;
-        while(generatedAValidChange) {
-            if(Validator.areAssignmentsValid(RawAssignments.from(teakedS), contributors, projects, outputFile)) {
-                generatedAValidChange = false;
-            }
-            Collections.shuffle(teakedS, new Random());
-        }
+        // Swap the neighboring elements at the random index
+        Assignment temp = CopyS.get(index);
+        CopyS.set(index, CopyS.get(index + 1));
+        CopyS.set(index + 1, temp);
 
-        return teakedS;
+        return CopyS;
     }
 
     private static int Quality(List<Assignment> R, List<Project> projects, List<Contributor> contributors) {
@@ -74,18 +68,15 @@ public class IteratedLocalSearch {
         }
     }
 
-    private static List<Assignment> Perturb(List<Assignment> H, List<Project> projects, List<Contributor> contributors, String outputFile) {
-        List<Assignment> pertubedSolution = new ArrayList<>(H);
-        Collections.shuffle(pertubedSolution, new Random());
+    private static List<Assignment> Perturb(List<Assignment> H) {
+        // Generate two random indices within the bounds of the list
+        int index1 = (int) (Math.random() * H.size());
+        int index2 = (int) (Math.random() * H.size());
 
-        boolean generatedAValidChange = true;
-        while(generatedAValidChange) {
-            if(Validator.areAssignmentsValid(RawAssignments.from(pertubedSolution), contributors, projects, outputFile)) {
-                generatedAValidChange = false;
-            }
-            Collections.shuffle(pertubedSolution, new Random());
-        }
-
-        return pertubedSolution;
+        // Swap the elements at the random indices
+        Assignment temp = H.get(index1);
+        H.set(index1, H.get(index2));
+        H.set(index2, temp);
+        return H;
     }
 }

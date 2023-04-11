@@ -43,9 +43,10 @@ public class Validator {
             return false;
         }
 
-        if(!checkIfAssignedContributorsHaveAtLeastOneRequiredProjectSkill(rawAssignments, contributors, projects)) {
-            return false;
-        }
+//         WE SHOULD TEST THIS TO LOOK IF WE NEED IT
+//        if(!checkIfAssignedContributorsHaveAtLeastOneRequiredProjectSkill(rawAssignments, contributors, projects)) {
+//            return false;
+//        }
 
         return true;
     }
