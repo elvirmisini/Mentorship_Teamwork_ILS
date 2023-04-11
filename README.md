@@ -54,3 +54,15 @@ Bob Maria
 WebServer
 Anna Bob 
 ```
+
+# Phase 2:
+
+On this phaze we had to implement one operator, to make the initial algorithm structure and also to define the main algorithm parameters, this time we did with Java programming language, so you need to execute the main.java function.
+
+> than you need to chose one file:
+
+
+![image](https://user-images.githubusercontent.com/58117020/230908708-e607e864-f0c9-457b-a27d-1b5993c5f1bf.png)
+> for example "a", and we get this output
+
+![image](https://user-images.githubusercontent.com/58117020/230908994-0425daff-f308-4856-b9df-d925d476319e.png)
