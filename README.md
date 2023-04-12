@@ -57,6 +57,10 @@ Anna Bob
 
 # Phase 2:
 
+
+### To execute this phaze, you just need to run the test.java file
+
+
 On this phaze we had to implement one operator, to make the initial algorithm structure and also to define the main algorithm parameters, this time we did with Java programming language, so you need to execute the main.java function.
 
 > than you need to chose one file:
@@ -66,3 +70,8 @@ On this phaze we had to implement one operator, to make the initial algorithm st
 > for example "a", and we get this output
 
 ![image](https://user-images.githubusercontent.com/58117020/230908994-0425daff-f308-4856-b9df-d925d476319e.png)
+
+> or if it is not vliad:
+
+![image](https://user-images.githubusercontent.com/58117020/231461472-e7402014-edc3-423e-995d-913394ed4db5.png)
+
