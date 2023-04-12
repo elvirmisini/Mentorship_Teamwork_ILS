@@ -1,7 +1,7 @@
 3
 WebServer
 Anna Bob 
+WebChat
+Bob Maria 
 Logging
 Anna 
-WebChat
-Maria Bob 

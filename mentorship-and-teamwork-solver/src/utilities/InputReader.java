@@ -13,8 +13,10 @@ public class InputReader {
         Scanner input = new Scanner(System.in);
         System.out.print("Choose the file.\na, b, c, d, e, f, class\nYour choice: ");
         String chosenFile = input.nextLine();
-        String absoluteInputFilePath = "src\\input_files\\";
-        String absoluteOutputFilePath = "src\\output_files\\";
+        String absoluteInputFilePath = "C:\\Users\\Elvir Misini\\Desktop\\Mentorship_Teamwork_ILS\\mentorship-and-teamwork-solver\\src\\input_files\\";
+        String absoluteOutputFilePath = "C:\\Users\\Elvir Misini\\Desktop\\Mentorship_Teamwork_ILS\\mentorship-and-teamwork-solver\\src\\output_files\\";
+        // String absoluteInputFilePath = "src\\input_files\\";
+        // String absoluteOutputFilePath = "src\\output_files\\";
 
         if (Objects.equals(chosenFile, "a")) {
             absoluteInputFilePath += "a_an_example.in.txt";
