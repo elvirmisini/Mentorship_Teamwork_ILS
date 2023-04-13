@@ -4,10 +4,7 @@ import entities.Project;
 import entities.RawAssignments;
 import utilities.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Test {
 
@@ -19,19 +16,20 @@ public class Test {
         List<String> fileContents = InputReader.readFileContent(absoluteInputFilePath);
 
         List<Contributor> contributors = InputReader.readContributors(fileContents);
-        List<Contributor> unchangedContributors = InputReader.readContributors(fileContents);
         Collections.shuffle(contributors, new Random());
+        List<Contributor> unchangedContributors = InputReader.readContributors(fileContents);
 
         List<Project> projects = InputReader.readProjects(fileContents);
-        List<Project> unchangedProjects = InputReader.readProjects(fileContents);
         Collections.shuffle(projects, new Random());
+        List<Project> unchangedProjects = InputReader.readProjects(fileContents);
 
         List<Assignment> assignments = InitialSolver.solver(contributors, projects);
-//        int fitnessScorex = FitnessCalculator.getFitnessScore(assignments, contributors, projects);
-//        System.out.println("Fitness score: " + fitnessScorex);
+        int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(assignments, contributors, projects);
+        System.out.println("Fitness score: " + fitnessScoreOfInitialSolution);
 
         List<Assignment> assignmentAfterILS = new ArrayList<>(
-                IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(assignments, 10, projects, contributors, absoluteOutputFilePath)
+                IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(
+                        assignments, 10, InputReader.readProjects(fileContents), InputReader.readContributors(fileContents), absoluteOutputFilePath)
         );
 
         int fitnessScore = FitnessCalculator.getFitnessScore(assignmentAfterILS, contributors, projects);

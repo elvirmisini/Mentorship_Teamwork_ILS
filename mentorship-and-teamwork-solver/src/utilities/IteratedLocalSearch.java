@@ -3,6 +3,7 @@ package utilities;
 import entities.Assignment;
 import entities.Contributor;
 import entities.Project;
+import entities.RawAssignments;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,13 +17,15 @@ public class IteratedLocalSearch {
 
         int i = 0;
         while (i < maxIteration) {
+//            System.out.println(i);
 
             int j = 0;
             while (j < maxIteration) {
                 List<Assignment> R = Tweak(Copy(S));
-//                System.out.println("Tweaked:: " + Quality(R, projects, contributors));
-                if (Quality(R, projects, contributors) > Quality(S, projects, contributors)) {
-                    S = new ArrayList<>(R);
+                if(Validator.areAssignmentsValid(RawAssignments.from(R), contributors, projects, outputFile)) {
+                    if (Quality(R, projects, contributors) > Quality(S, projects, contributors)) {
+                        S = new ArrayList<>(R);
+                    }
                 }
                 j++;
             }
@@ -32,8 +35,10 @@ public class IteratedLocalSearch {
             }
 
             H = NewHomeBase(H, S, projects, contributors);
-            S = Perturb(H);
-//            System.out.println("Perturbed:: " + Quality(S, projects, contributors));
+            List<Assignment> PerturbedS = Perturb(H);
+            if (Validator.areAssignmentsValid(RawAssignments.from(PerturbedS), contributors, projects, outputFile)) {
+                S = PerturbedS;
+            }
             i++;
         }
         return Best;

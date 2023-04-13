@@ -13,6 +13,7 @@ public class InitialSolver {
         List<Assignment> assignments = new ArrayList<>();
 
         for(int i = 0; i < projects.size(); i++) {
+//            System.out.println(i);
             Assignment assignment = new Assignment();
             assignment.setId(UUID.randomUUID());
 
