@@ -3,6 +3,9 @@ import entities.Contributor;
 import entities.Project;
 import entities.RawAssignments;
 import utilities.*;
+// import java.io.FileInputStream;
+// import java.io.IOException;
+// import java.util.Properties;
 
 import java.util.*;
 
@@ -25,12 +28,32 @@ public class Test {
 
         List<Assignment> assignments = InitialSolver.solver(contributors, projects);
         int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(assignments, contributors, projects);
-        System.out.println("Fitness score: " + fitnessScoreOfInitialSolution);
+        // System.out.println("Fitness score: " + fitnessScoreOfInitialSolution);
+
+        Properties prop = new Properties();
+
+        // try {
+        // FileInputStream input = new FileInputStream("config.properties");
+        // prop.load(input);
+        // } catch (IOException ex) {
+        // ex.printStackTrace();
+        // }
+
+        // String maxIterationsStr = prop.getProperty("max_iterations");
+        // int maxIterations = Integer.parseInt(maxIterationsStr);
+
+        // System.out.println("MaxIterations " + maxIterations);
+
+        Scanner input = new Scanner(System.in);
+        System.out.print("Write a number for max iterations: ");
+        String number_in = input.nextLine();
+
+        int max_iterations = Integer.parseInt(number_in);
 
         List<Assignment> assignmentAfterILS = new ArrayList<>(
                 IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(
-                        assignments, 10, InputReader.readProjects(fileContents), InputReader.readContributors(fileContents), absoluteOutputFilePath)
-        );
+                        assignments, max_iterations, InputReader.readProjects(fileContents),
+                        InputReader.readContributors(fileContents), absoluteOutputFilePath));
 
         int fitnessScore = FitnessCalculator.getFitnessScore(assignmentAfterILS, contributors, projects);
         System.out.println("Fitness score: " + fitnessScore);
@@ -39,7 +62,8 @@ public class Test {
         System.out.println("Wrote assignments\n");
 
         List<RawAssignments> rawAssignments = InputReader.readRawAssignments(absoluteOutputFilePath);
-        if (Validator.areAssignmentsValid(rawAssignments, unchangedContributors, unchangedProjects, absoluteOutputFilePath)) {
+        if (Validator.areAssignmentsValid(rawAssignments, unchangedContributors, unchangedProjects,
+                absoluteOutputFilePath)) {
             System.out.println("The solution is valid!");
         } else {
             System.out.println("Wrong solution!");
