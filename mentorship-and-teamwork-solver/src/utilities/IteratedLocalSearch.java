@@ -14,6 +14,7 @@ public class IteratedLocalSearch {
     public static List<Assignment> iteratedLocalSearchWithRandomRestarts(
             List<Assignment> initialRandomCandidateSolution, int maxIteration, List<Project> projects,
             List<Contributor> contributors, String outputFile) {
+
         List<Assignment> S = new ArrayList<>(initialRandomCandidateSolution);
         List<Assignment> H = new ArrayList<>(S);
         List<Assignment> Best = new ArrayList<>(S);
@@ -26,14 +27,16 @@ public class IteratedLocalSearch {
             while (j < maxIteration) {
                 List<Assignment> R = Tweak(Copy(S));
                 if (Validator.areAssignmentsValid(RawAssignments.from(R), contributors, projects, outputFile)) {
-                    if (Quality(R, projects, contributors) > Quality(S, projects, contributors)) {
+                    int delta = deltaQuality(S, R, projects, contributors);
+                    if (delta > 0) {
                         S = new ArrayList<>(R);
                     }
                 }
                 j++;
             }
 
-            if (Quality(S, projects, contributors) > Quality(Best, projects, contributors)) {
+            int delta = deltaQuality(Best, S, projects, contributors);
+            if (delta > 0) {
                 Best = new ArrayList<>(S);
             }
 
@@ -45,6 +48,11 @@ public class IteratedLocalSearch {
             i++;
         }
         return Best;
+    }
+
+    private static int deltaQuality(List<Assignment> oldSolution, List<Assignment> newSolution, List<Project> projects,
+            List<Contributor> contributors) {
+        return Quality(newSolution, projects, contributors) - Quality(oldSolution, projects, contributors);
     }
 
     private static List<Assignment> Copy(List<Assignment> S) {
