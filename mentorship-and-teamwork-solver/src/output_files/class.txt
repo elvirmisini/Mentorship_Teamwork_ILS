@@ -1,17 +1,17 @@
 8
-WebServer
-Njomza Diell 
+WebChat
+Maria Dardan 
+Logging
+Njomza 
 People
 Njomza 
-Upload
-Ilire Dardan 
+Comments
+Njomza 
 Database
 Dardan 
 WebSockets
-Njomza Ilire 
-Comments
-Njomza 
-WebChat
-Ilire Diell 
-Logging
-Njomza 
+Maria Njomza 
+WebServer
+Njomza Dardan 
+Upload
+Maria Dardan 

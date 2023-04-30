@@ -48,6 +48,8 @@ public class IteratedLocalSearch {
         return new ArrayList<>(S);
     }
 
+    // kur te bejme tweak duhet qe te bejme ndrrime valide, e jo ndrrime
+    // qe mund te na e prishin zgjidhjen
     private static List<Assignment> Tweak(List<Assignment> CopyS) {
         // Generate a random index within the bounds of the list (excluding the last element)
         int index = (int) (Math.random() * (CopyS.size() - 1));
@@ -73,6 +75,8 @@ public class IteratedLocalSearch {
         }
     }
 
+    // kur te bejme perturb duhet qe te bejme ndrrime valide, e jo ndrrime
+    // qe mund te na e prishin zgjidhjen
     private static List<Assignment> Perturb(List<Assignment> H) {
         // Generate two random indices within the bounds of the list
         int index1 = (int) (Math.random() * H.size());
