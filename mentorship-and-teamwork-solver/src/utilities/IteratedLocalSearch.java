@@ -8,6 +8,7 @@ import entities.RawAssignments;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
 
@@ -21,11 +22,11 @@ public class IteratedLocalSearch {
 
         int i = 0;
         while (i < maxIteration) {
-            // System.out.println(i);
+            System.out.println(i);
 
             int j = 0;
             while (j < maxIteration) {
-                List<Assignment> R = Tweak(Copy(S));
+                List<Assignment> R = Tweak(Copy(S), projects, contributors);
                 if (Validator.areAssignmentsValid(RawAssignments.from(R), contributors, projects, outputFile)) {
                     int delta = deltaQuality(S, R, projects, contributors);
                     if (delta > 0) {
@@ -85,14 +86,14 @@ public class IteratedLocalSearch {
         }
     }
 
-    private static List<Assignment> Tweak(List<Assignment> CopyS) {
+    private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects, List<Contributor> contributors) {
         int operator = (int) (Math.random() * 3); // generate a random number between 0 and 2
 
         switch (operator) {
             case 0:
                 return Swap(CopyS);
             case 1:
-                return Insert(CopyS);
+                return InsertProjects(CopyS, projects, contributors);
             case 2:
                 return Inversion(CopyS);
 
@@ -114,16 +115,26 @@ public class IteratedLocalSearch {
         return CopyS;
     }
 
-    private static List<Assignment> Insert(List<Assignment> CopyS) {
-        // Generate two random indices within the bounds of the list
-        int index1 = (int) (Math.random() * CopyS.size());
-        int index2 = (int) (Math.random() * CopyS.size());
+    private static List<Assignment> InsertProjects(List<Assignment> assignments, List<Project> projects, List<Contributor> contributors) {
+        List<String> assignedProjectIds = assignments.stream()
+                .map(assignment -> {
+                    if (assignment != null) {
+                        if(assignment.getProject() != null) {
+                            return assignment.getProject().getName();
+                        }
+                    }
+                    return null;
+                })
+                .collect(Collectors.toList());
 
-        // Insert the element at the first index at the second index
-        Assignment temp = CopyS.remove(index1);
-        CopyS.add(index2, temp);
+        List<Project> unassignedProjects =  projects.stream().filter(project -> !assignedProjectIds.contains(project.getName())).collect(Collectors.toList());
+        if(unassignedProjects.size() > 0) {
+            List<Assignment> additionalAssignments = InitialSolver.solver(contributors, unassignedProjects);
+//            System.out.println(additionalAssignments.size());
+            assignments.addAll(additionalAssignments);
+        }
 
-        return CopyS;
+        return assignments;
     }
 
     private static List<Assignment> Inversion(List<Assignment> CopyS) {

@@ -29,6 +29,7 @@ public class Test {
         List<Assignment> assignments = InitialSolver.solver(contributors, projects);
         if (Validator.areAssignmentsValid(RawAssignments.from(assignments), unchangedContributors, unchangedProjects,
                 absoluteOutputFilePath)) {
+//            System.out.println(assignments);
             System.out.println("The solution is valid!");
 
             int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(assignments, contributors, projects);
@@ -59,6 +60,8 @@ public class Test {
                             assignments, max_iterations, InputReader.readProjects(fileContents),
                             InputReader.readContributors(fileContents), absoluteOutputFilePath));
 
+            System.out.println();
+//            System.out.println(assignmentAfterILS);
             int fitnessScore = FitnessCalculator.getFitnessScore(assignmentAfterILS, contributors, projects);
             System.out.println("Fitness score: " + fitnessScore);
 
