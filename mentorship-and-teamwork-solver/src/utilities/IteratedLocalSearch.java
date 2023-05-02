@@ -1,22 +1,22 @@
 package utilities;
 
-import entities.Assignment;
-import entities.Contributor;
-import entities.Project;
-import entities.RawAssignments;
+import entities.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
 
-    public static List<Assignment> iteratedLocalSearchWithRandomRestarts(
-            List<Assignment> initialRandomCandidateSolution, int maxIteration, List<Project> projects,
+    public static List<FullAssignment> iteratedLocalSearchWithRandomRestarts(
+            List<FullAssignment> initialRandomCandidateSolution, int maxIteration, List<Project> projects,
             List<Contributor> contributors, String outputFile) {
 
-        List<Assignment> S = new ArrayList<>(initialRandomCandidateSolution);
-        List<Assignment> H = new ArrayList<>(S);
-        List<Assignment> Best = new ArrayList<>(S);
+        List<FullAssignment> S = new ArrayList<>(initialRandomCandidateSolution);
+        List<FullAssignment> H = new ArrayList<>(S);
+        List<FullAssignment> Best = new ArrayList<>(S);
 
         int i = 0;
         while (i < maxIteration) {
@@ -24,8 +24,8 @@ public class IteratedLocalSearch {
 
             int j = 0;
             while (j < maxIteration) {
-                List<Assignment> R = Tweak(Copy(S), projects, contributors);
-                if (Validator.areAssignmentsValid(RawAssignments.from(R), contributors, projects, outputFile)) {
+                List<FullAssignment> R = Tweak(Copy(S), projects, contributors);
+                if (Validator.areAssignmentsValid(NameAssignment.from(R), contributors, projects, outputFile)) {
                     int delta = deltaQuality(S, R, projects, contributors);
                     if (delta > 0) {
                         S = new ArrayList<>(R);
@@ -41,8 +41,8 @@ public class IteratedLocalSearch {
             }
 
             H = NewHomeBase(H, S, projects, contributors);
-            List<Assignment> PerturbedS = Perturb(H);
-            if (Validator.areAssignmentsValid(RawAssignments.from(PerturbedS), contributors, projects, outputFile)) {
+            List<FullAssignment> PerturbedS = Perturb(H);
+            if (Validator.areAssignmentsValid(NameAssignment.from(PerturbedS), contributors, projects, outputFile)) {
                 S = PerturbedS;
             }
             i++;
@@ -50,12 +50,12 @@ public class IteratedLocalSearch {
         return Best;
     }
 
-    private static int deltaQuality(List<Assignment> oldSolution, List<Assignment> newSolution, List<Project> projects,
-            List<Contributor> contributors) {
+    private static int deltaQuality(List<FullAssignment> oldSolution, List<FullAssignment> newSolution, List<Project> projects,
+                                    List<Contributor> contributors) {
         return Quality(newSolution, projects, contributors) - Quality(oldSolution, projects, contributors);
     }
 
-    private static List<Assignment> Copy(List<Assignment> S) {
+    private static List<FullAssignment> Copy(List<FullAssignment> S) {
         return new ArrayList<>(S);
     }
 
@@ -72,12 +72,12 @@ public class IteratedLocalSearch {
     // return CopyS;
     // }
 
-    private static int Quality(List<Assignment> R, List<Project> projects, List<Contributor> contributors) {
+    private static int Quality(List<FullAssignment> R, List<Project> projects, List<Contributor> contributors) {
         return FitnessCalculator.getFitnessScore(R, contributors, projects);
     }
 
-    private static List<Assignment> NewHomeBase(List<Assignment> H, List<Assignment> S, List<Project> projects,
-            List<Contributor> contributors) {
+    private static List<FullAssignment> NewHomeBase(List<FullAssignment> H, List<FullAssignment> S, List<Project> projects,
+                                                    List<Contributor> contributors) {
         if (Quality(S, projects, contributors) >= Quality(H, projects, contributors)) {
             return new ArrayList<>(S);
         } else {
@@ -85,7 +85,7 @@ public class IteratedLocalSearch {
         }
     }
 
-    private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects, List<Contributor> contributors) {
+    private static List<FullAssignment> Tweak(List<FullAssignment> CopyS, List<Project> projects, List<Contributor> contributors) {
         int operator = (int) (Math.random() * 4); // generate a random number between 0 and 2
 
         switch (operator) {
@@ -104,28 +104,28 @@ public class IteratedLocalSearch {
         }
     }
 
-    private static List<Assignment> RemoveProject(List<Assignment> assignments) {
+    private static List<FullAssignment> RemoveProject(List<FullAssignment> fullAssignments) {
         Random random = new Random();
-        int fromIndex = random.nextInt(assignments.size());
-        new ArrayList<>(assignments).remove(fromIndex);
-        return assignments;
+        int fromIndex = random.nextInt(fullAssignments.size());
+        new ArrayList<>(fullAssignments).remove(fromIndex);
+        return fullAssignments;
     }
 
-    private static List<Assignment> Swap(List<Assignment> CopyS) {
+    private static List<FullAssignment> Swap(List<FullAssignment> CopyS) {
         // Generate a random index within the bounds of the list (excluding the last
         // element)
         int index = (int) (Math.random() * (CopyS.size() - 1));
 
         // Swap the neighboring elements at the random index
-        Assignment temp = CopyS.get(index);
+        FullAssignment temp = CopyS.get(index);
         CopyS.set(index, CopyS.get(index + 1));
         CopyS.set(index + 1, temp);
 
         return CopyS;
     }
 
-    private static List<Assignment> InsertProjects(List<Assignment> assignments, List<Project> projects, List<Contributor> contributors) {
-        List<String> assignedProjectIds = assignments.stream()
+    private static List<FullAssignment> InsertProjects(List<FullAssignment> fullAssignments, List<Project> projects, List<Contributor> contributors) {
+        List<String> assignedProjectIds = fullAssignments.stream()
                 .map(assignment -> {
                     if (assignment != null) {
                         if(assignment.getProject() != null) {
@@ -138,15 +138,15 @@ public class IteratedLocalSearch {
 
         List<Project> unassignedProjects =  projects.stream().filter(project -> !assignedProjectIds.contains(project.getName())).collect(Collectors.toList());
         if(unassignedProjects.size() > 0) {
-            List<Assignment> additionalAssignments = InitialSolver.solver(contributors, unassignedProjects);
+            List<FullAssignment> additionalFullAssignments = InitialSolver.solver(contributors, unassignedProjects);
 //            System.out.println(additionalAssignments.size());
-            assignments.addAll(additionalAssignments);
+            fullAssignments.addAll(additionalFullAssignments);
         }
 
-        return assignments;
+        return fullAssignments;
     }
 
-    private static List<Assignment> Inversion(List<Assignment> CopyS) {
+    private static List<FullAssignment> Inversion(List<FullAssignment> CopyS) {
         // Generate two random indices within the bounds of the list
         int index1 = (int) (Math.random() * CopyS.size());
         int index2 = (int) (Math.random() * CopyS.size());
@@ -156,7 +156,7 @@ public class IteratedLocalSearch {
 
         // Reverse the elements in the sub-list between the two indices
         for (int i = start, j = end; i < j; i++, j--) {
-            Assignment temp = CopyS.get(i);
+            FullAssignment temp = CopyS.get(i);
             CopyS.set(i, CopyS.get(j));
             CopyS.set(j, temp);
         }
@@ -164,7 +164,7 @@ public class IteratedLocalSearch {
         return CopyS;
     }
 
-    private static List<Assignment> Shake(List<Assignment> CopyS) {
+    private static List<FullAssignment> Shake(List<FullAssignment> CopyS) {
         int k = (int) (Math.random() * CopyS.size() / 2) + 1; // generate a random k value between 1 and n/2
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < CopyS.size(); i++) {
@@ -175,7 +175,7 @@ public class IteratedLocalSearch {
         for (int i = 0; i < k; i++) {
             int index1 = indices.get(i);
             int index2 = indices.get(i + k);
-            Assignment temp = CopyS.get(index1);
+            FullAssignment temp = CopyS.get(index1);
             CopyS.set(index1, CopyS.get(index2));
             CopyS.set(index2, temp);
         }
@@ -183,7 +183,7 @@ public class IteratedLocalSearch {
         return CopyS;
     }
 
-    private static List<Assignment> Perturb(List<Assignment> H) {
+    private static List<FullAssignment> Perturb(List<FullAssignment> H) {
         // Generate two random indices within the bounds of the list
 //        int index1 = (int) (Math.random() * H.size());
 //        int index2 = (int) (Math.random() * H.size());

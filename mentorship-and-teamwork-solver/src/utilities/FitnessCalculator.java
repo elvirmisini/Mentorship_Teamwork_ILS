@@ -1,6 +1,6 @@
 package utilities;
 
-import entities.Assignment;
+import entities.FullAssignment;
 import entities.Contributor;
 import entities.Project;
 
@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 public class FitnessCalculator {
 
-    public static int getFitnessScore(List<Assignment> assignments, List<Contributor> contributors, List<Project> projects) {
-        List<Assignment> filteredAssignments = assignments.stream()
+    public static int getFitnessScore(List<FullAssignment> fullAssignments, List<Contributor> contributors, List<Project> projects) {
+        List<FullAssignment> filteredFullAssignments = fullAssignments.stream()
                 .filter(assignment -> assignment.getProject() != null)
                 .filter(assignment -> assignment.getContributors().size() != 0)
                 .collect(Collectors.toList());
@@ -19,8 +19,8 @@ public class FitnessCalculator {
         Map<String, Project> projectMap = projects.stream().collect(Collectors.toMap(Project::getName, project -> project));
         int totalScore = 0;
 
-        for(int i = 0; i < filteredAssignments.size(); i++) {
-            String projectName = filteredAssignments.get(i).getProject().getName();
+        for(int i = 0; i < filteredFullAssignments.size(); i++) {
+            String projectName = filteredFullAssignments.get(i).getProject().getName();
             if(!projectMap.containsKey(projectName)) {
                 System.out.println("Error. The project " + projectName + " does not exist in input!");
                 System.exit(0);
@@ -31,7 +31,7 @@ public class FitnessCalculator {
             int bestBeforeDaysOfProject = project.getBestBefore();
             int projectScore = project.getScore();
 
-            List<String> contributorNames = filteredAssignments.get(i).getContributorNames();
+            List<String> contributorNames = filteredFullAssignments.get(i).getContributorNames();
 
             for(int j = 0; j < contributorNames.size(); j++) {
                 String contributorName = contributorNames.get(j);

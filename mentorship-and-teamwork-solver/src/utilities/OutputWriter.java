@@ -1,7 +1,7 @@
 package utilities;
 
-import entities.Assignment;
-import entities.AssignmentInfo;
+import entities.FullAssignment;
+import entities.NameAssignment;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,13 +10,12 @@ import java.util.List;
 
 public class OutputWriter {
 
-    public static void writeContent(List<Assignment> assignments, String fileName) throws IOException {
-        List<AssignmentInfo> correctAssignments = new ArrayList<>();
+    public static void writeContent(List<FullAssignment> fullAssignments, String fileName) throws IOException {
+        List<NameAssignment> correctAssignments = new ArrayList<>();
 
-        for (int i = 0; i < assignments.size(); i++) {
-            if (assignments.get(i).getProject() != null) {
-                correctAssignments.add(new AssignmentInfo(assignments.get(i).getProject().getName(),
-                        assignments.get(i).getContributorNames()));
+        for (int i = 0; i < fullAssignments.size(); i++) {
+            if (fullAssignments.get(i).getProject() != null) {
+                correctAssignments.add(new NameAssignment(fullAssignments.get(i).getProject().getName(), fullAssignments.get(i).getContributorNames()));
             }
         }
 
@@ -24,7 +23,7 @@ public class OutputWriter {
         writer.write(correctAssignments.size() + "\n");
 
         for (int i = 0; i < correctAssignments.size(); i++) {
-            writer.write(correctAssignments.get(i).getProjectName() + "\n");
+            writer.write(correctAssignments.get(i).getProject() + "\n");
             for (String contributorName : correctAssignments.get(i).getAssignedContributors()) {
                 writer.write(contributorName + " ");
             }

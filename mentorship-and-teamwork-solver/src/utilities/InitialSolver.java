@@ -6,23 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class InitialSolver {
 
-    public static List<Assignment> solver(List<Contributor> contributors, List<Project> projects) {
-        List<Assignment> assignments = new ArrayList<>();
+    public static List<FullAssignment> solver(List<Contributor> contributors, List<Project> projects) {
+        List<FullAssignment> fullAssignments = new ArrayList<>();
 
         for(int i = 0; i < projects.size(); i++) {
-//            System.out.println("p=" + i);
-            Assignment assignment = new Assignment();
-            assignment.setId(UUID.randomUUID());
+            FullAssignment fullAssignment = new FullAssignment();
+            fullAssignment.setId(UUID.randomUUID());
 
             Project currentProject = projects.get(i);
             List<Skill> currentProjectSkills = currentProject.getSkills();
 
-            List<ContributorAndAssignedSkill> assignedContributors = new ArrayList<>();
+            List<ContributorWithAssignedSkill> assignedContributors = new ArrayList<>();
             List<String> assignedContributorIds = new ArrayList<>();
-            List<ContributorAndAssignedSkill> contributorsToIncreaseScore = new ArrayList<>();
+            List<ContributorWithAssignedSkill> contributorsToIncreaseScore = new ArrayList<>();
             List<String> assignedSkillIds = new ArrayList<>();
 
             endSearchForThisProject:
@@ -38,8 +38,8 @@ public class InitialSolver {
 
                         if(isValidAssignment(currentProject, assignedContributors)) {
                             increaseContributorsScore(contributorsToIncreaseScore);
-                            assignment.setProject(ProjectInfo.from(currentProject));
-                            assignment.setContributors(ContributorInfo.from(assignedContributors));
+                            fullAssignment.setProject(currentProject);
+                            fullAssignment.setContributors(getContributors(assignedContributors));
                             break endSearchForThisProject;
                         } else {
 
@@ -50,9 +50,9 @@ public class InitialSolver {
 
                                 assignedContributorIds.add(currentContributor.getId() + "");
                                 assignedSkillIds.add(currentProjectSkill.getId() + "");
-                                assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
+                                assignedContributors.add(new ContributorWithAssignedSkill(currentContributor, currentProjectSkill));
                                 if(currentProjectSkill.getLevel() == currentContributorSkill.getLevel()) {
-                                    contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
+                                    contributorsToIncreaseScore.add(new ContributorWithAssignedSkill(currentContributor, currentContributorSkill));
                                 }
                             }
 
@@ -64,8 +64,8 @@ public class InitialSolver {
 
                                 assignedContributorIds.add(currentContributor.getId() + "");
                                 assignedSkillIds.add(currentProjectSkill.getId() + "");
-                                assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
-                                contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
+                                assignedContributors.add(new ContributorWithAssignedSkill(currentContributor, currentProjectSkill));
+                                contributorsToIncreaseScore.add(new ContributorWithAssignedSkill(currentContributor, currentContributorSkill));
                             }
                             if(!Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
                                     currentProjectSkill.getLevel() == 1 &&
@@ -76,14 +76,14 @@ public class InitialSolver {
                                 assignedContributorIds.add(currentContributor.getId() + "");
                                 contributors.get(j).getSkills().add(new Skill(UUID.randomUUID(), currentProjectSkill.getName(), 1));
                                 assignedSkillIds.add(currentProjectSkill.getId() + "");
-                                assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
+                                assignedContributors.add(new ContributorWithAssignedSkill(currentContributor, currentProjectSkill));
                             }
                         }
                     }
                     if(isValidAssignment(currentProject, assignedContributors)) {
                         increaseContributorsScore(contributorsToIncreaseScore);
-                        assignment.setProject(ProjectInfo.from(currentProject));
-                        assignment.setContributors(ContributorInfo.from(assignedContributors));
+                        fullAssignment.setProject(currentProject);
+                        fullAssignment.setContributors(getContributors(assignedContributors));
                         break endSearchForThisProject;
                     }
                 }
@@ -96,8 +96,8 @@ public class InitialSolver {
 
                         if(isValidAssignment(currentProject, assignedContributors)) {
                             increaseContributorsScore(contributorsToIncreaseScore);
-                            assignment.setProject(ProjectInfo.from(currentProject));
-                            assignment.setContributors(ContributorInfo.from(assignedContributors));
+                            fullAssignment.setProject(currentProject);
+                            fullAssignment.setContributors(getContributors(assignedContributors));
                             break endSearchForThisProject;
                         } else {
                             if(Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
@@ -108,8 +108,8 @@ public class InitialSolver {
 
                                 assignedContributorIds.add(currentContributor.getId() + "");
                                 assignedSkillIds.add(currentProjectSkill.getId() + "");
-                                assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
-                                contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
+                                assignedContributors.add(new ContributorWithAssignedSkill(currentContributor, currentProjectSkill));
+                                contributorsToIncreaseScore.add(new ContributorWithAssignedSkill(currentContributor, currentContributorSkill));
                             }
                             if(!Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
                                     currentProjectSkill.getLevel() == 1 &&
@@ -120,34 +120,34 @@ public class InitialSolver {
                                 assignedContributorIds.add(currentContributor.getId() + "");
                                 contributors.get(j).getSkills().add(new Skill(UUID.randomUUID(), currentProjectSkill.getName(), 1));
                                 assignedSkillIds.add(currentProjectSkill.getId() + "");
-                                assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
+                                assignedContributors.add(new ContributorWithAssignedSkill(currentContributor, currentProjectSkill));
                             }
 
                         }
                     }
                     if(isValidAssignment(currentProject, assignedContributors)) {
                         increaseContributorsScore(contributorsToIncreaseScore);
-                        assignment.setProject(ProjectInfo.from(currentProject));
-                        assignment.setContributors(ContributorInfo.from(assignedContributors));
+                        fullAssignment.setProject(currentProject);
+                        fullAssignment.setContributors(getContributors(assignedContributors));
                         break endSearchForThisProject;
                     }
                 }
             }
 
-            assignments.add(assignment);
+            fullAssignments.add(fullAssignment);
         }
 
-        return assignments;
+        return fullAssignments;
     }
 
-    public static boolean isValidAssignment(Project project, List<ContributorAndAssignedSkill> contributorAndAssignedSkills) {
-        if(contributorAndAssignedSkills.size() != project.getSkills().size()) {
+    public static boolean isValidAssignment(Project project, List<ContributorWithAssignedSkill> contributorWithAssignedSkills) {
+        if(contributorWithAssignedSkills.size() != project.getSkills().size()) {
             return false;
         }
         return true;
     }
 
-    public static void increaseContributorsScore(List<ContributorAndAssignedSkill> contributorAndSkills) {
+    public static void increaseContributorsScore(List<ContributorWithAssignedSkill> contributorAndSkills) {
         for (int i = 0; i < contributorAndSkills.size(); i++) {
             List<Skill> contributorSkills = contributorAndSkills.get(i).getContributor().getSkills();
             String assignedSkillId = contributorAndSkills.get(i).getAssignedSkill().getId() + "";
@@ -160,7 +160,7 @@ public class InitialSolver {
         }
     }
 
-    public static boolean contributorHasMentor(String skillName, int skillLevel, List<ContributorAndAssignedSkill> assignedContributors ) {
+    public static boolean contributorHasMentor(String skillName, int skillLevel, List<ContributorWithAssignedSkill> assignedContributors ) {
         for(int i = 0; i < assignedContributors.size(); i++) {
             Skill mentorSkill = assignedContributors.get(i).getAssignedSkill();
             if(Objects.equals(mentorSkill.getName(), skillName) && mentorSkill.getLevel() >= skillLevel) {
@@ -168,6 +168,10 @@ public class InitialSolver {
             }
         }
         return false;
+    }
+
+    private static List<Contributor> getContributors(List<ContributorWithAssignedSkill> contributorWithAssignedSkills) {
+        return contributorWithAssignedSkills.stream().map(ContributorWithAssignedSkill::getContributor).collect(Collectors.toList());
     }
 
 }

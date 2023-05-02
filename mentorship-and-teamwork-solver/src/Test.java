@@ -1,7 +1,4 @@
-import entities.Assignment;
-import entities.Contributor;
-import entities.Project;
-import entities.RawAssignments;
+import entities.*;
 import utilities.*;
 
 import java.util.*;
@@ -63,13 +60,13 @@ public class Test {
 
 //        projects.sort(new Project.ProjectComparator());
 
-        List<Assignment> assignments = InitialSolver.solver(contributors, projects);
-        if (Validator.areAssignmentsValid(RawAssignments.from(assignments), unchangedContributors, unchangedProjects,
+        List<FullAssignment> fullAssignments = InitialSolver.solver(contributors, projects);
+        if (Validator.areAssignmentsValid(NameAssignment.from(fullAssignments), unchangedContributors, unchangedProjects,
                 absoluteOutputFilePath)) {
             // System.out.println(assignments);
             System.out.println("The solution is valid!");
 
-            int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(assignments, contributors, projects);
+            int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(fullAssignments, contributors, projects);
             System.out.println("Fitness score: " + fitnessScoreOfInitialSolution);
 
             Properties prop = new Properties();
@@ -92,20 +89,20 @@ public class Test {
 
             int max_iterations = Integer.parseInt(number_in);
 
-            List<Assignment> assignmentAfterILS = new ArrayList<>(
+            List<FullAssignment> fullAssignmentAfterILS = new ArrayList<>(
                     IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(
-                            assignments, max_iterations, InputReader.readProjects(fileContents),
+                            fullAssignments, max_iterations, InputReader.readProjects(fileContents),
                             InputReader.readContributors(fileContents), absoluteOutputFilePath));
 
             System.out.println();
             // System.out.println(assignmentAfterILS);
-            int fitnessScore = FitnessCalculator.getFitnessScore(assignmentAfterILS, contributors, projects);
+            int fitnessScore = FitnessCalculator.getFitnessScore(fullAssignmentAfterILS, contributors, projects);
             System.out.println("Fitness score: " + fitnessScore);
 
-            OutputWriter.writeContent(assignmentAfterILS, absoluteOutputFilePath);
+            OutputWriter.writeContent(fullAssignmentAfterILS, absoluteOutputFilePath);
             System.out.println("Wrote assignments\n");
 
-            List<RawAssignments> rawAssignments = InputReader.readRawAssignments(absoluteOutputFilePath);
+            List<NameAssignment> rawAssignments = InputReader.readAssignments(absoluteOutputFilePath);
             if (Validator.areAssignmentsValid(rawAssignments, unchangedContributors, unchangedProjects,
                     absoluteOutputFilePath)) {
                 System.out.println("The solution is valid!");

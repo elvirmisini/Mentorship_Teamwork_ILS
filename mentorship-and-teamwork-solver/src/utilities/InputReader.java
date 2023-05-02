@@ -126,18 +126,19 @@ public class InputReader {
         return projectList;
     }
 
-    public static List<RawAssignments> readRawAssignments(String filename) {
-        List<RawAssignments> rawAssignments = new ArrayList<>();
+    public static List<NameAssignment> readAssignments(String filename) {
+        List<NameAssignment> assignments = new ArrayList<>();
         List<String> fileContents = readFileContent(filename);
+
         for (int i = 1, j = 2; i < fileContents.size(); i = i + 2, j = j + 2) {
-            RawAssignments assignment = new RawAssignments();
-            assignment.setProjectName(fileContents.get(i));
+            NameAssignment assignment = new NameAssignment();
+            assignment.setProject(fileContents.get(i));
             assignment.setId(UUID.randomUUID());
             String[] contributorNames = fileContents.get(j).split(" ");
             List<String> assignmentContributors = new ArrayList<>(Arrays.asList(contributorNames));
-            assignment.setContributorNames(assignmentContributors);
-            rawAssignments.add(assignment);
+            assignment.setAssignedContributors(assignmentContributors);
+            assignments.add(assignment);
         }
-        return rawAssignments;
+        return assignments;
     }
 }
