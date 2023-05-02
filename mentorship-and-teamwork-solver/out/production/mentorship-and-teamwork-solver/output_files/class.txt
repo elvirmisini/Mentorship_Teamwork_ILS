@@ -1,17 +1,15 @@
 8
 Logging
-Ilire 
-Database
-Dardan 
+Njomza
 People
-Diell 
-Comments
-Diell 
-WebChat
-Maria Diell 
+Diell
 WebServer
-Diell Ilire 
-Upload
-Maria Dardan 
+Diell Njomza
+WebChat
+Diell Bajram
 WebSockets
-Maria Diell 
+Diell Bajram
+Comments
+Diell
+Database
+Dardan

@@ -13,7 +13,7 @@ public class InitialSolver {
         List<Assignment> assignments = new ArrayList<>();
 
         for(int i = 0; i < projects.size(); i++) {
-//            System.out.println(i);
+//            System.out.println("p=" + i);
             Assignment assignment = new Assignment();
             assignment.setId(UUID.randomUUID());
 
@@ -55,6 +55,51 @@ public class InitialSolver {
                                     contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
                                 }
                             }
+
+                            if(Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
+                                    currentProjectSkill.getLevel() == currentContributorSkill.getLevel() + 1 &&
+                                    contributorHasMentor(currentProjectSkill.getName(), currentProjectSkill.getLevel(), assignedContributors) &&
+                                    !assignedContributorIds.contains(currentContributor.getId() + "") &&
+                                    !assignedSkillIds.contains(currentProjectSkill.getId() + "")) {
+
+                                assignedContributorIds.add(currentContributor.getId() + "");
+                                assignedSkillIds.add(currentProjectSkill.getId() + "");
+                                assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
+                                contributorsToIncreaseScore.add(new ContributorAndAssignedSkill(currentContributor, currentContributorSkill));
+                            }
+                            if(!Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
+                                    currentProjectSkill.getLevel() == 1 &&
+                                    contributorHasMentor(currentProjectSkill.getName(), currentProjectSkill.getLevel(), assignedContributors) &&
+                                    !assignedContributorIds.contains(currentContributor.getId() + "") &&
+                                    !assignedSkillIds.contains(currentProjectSkill.getId() + "")) {
+
+                                assignedContributorIds.add(currentContributor.getId() + "");
+                                contributors.get(j).getSkills().add(new Skill(UUID.randomUUID(), currentProjectSkill.getName(), 1));
+                                assignedSkillIds.add(currentProjectSkill.getId() + "");
+                                assignedContributors.add(new ContributorAndAssignedSkill(currentContributor, currentProjectSkill));
+                            }
+                        }
+                    }
+                    if(isValidAssignment(currentProject, assignedContributors)) {
+                        increaseContributorsScore(contributorsToIncreaseScore);
+                        assignment.setProject(ProjectInfo.from(currentProject));
+                        assignment.setContributors(ContributorInfo.from(assignedContributors));
+                        break endSearchForThisProject;
+                    }
+                }
+
+                for(int k = 0; k < currentProjectSkills.size(); k++) {
+                    Skill currentProjectSkill = currentProjectSkills.get(k);
+
+                    for(int t = 0; t < currentContributorSkills.size(); t++) {
+                        Skill currentContributorSkill = currentContributorSkills.get(t);
+
+                        if(isValidAssignment(currentProject, assignedContributors)) {
+                            increaseContributorsScore(contributorsToIncreaseScore);
+                            assignment.setProject(ProjectInfo.from(currentProject));
+                            assignment.setContributors(ContributorInfo.from(assignedContributors));
+                            break endSearchForThisProject;
+                        } else {
                             if(Objects.equals(currentProjectSkill.getName(), currentContributorSkill.getName()) &&
                                     currentProjectSkill.getLevel() == currentContributorSkill.getLevel() + 1 &&
                                     contributorHasMentor(currentProjectSkill.getName(), currentProjectSkill.getLevel(), assignedContributors) &&

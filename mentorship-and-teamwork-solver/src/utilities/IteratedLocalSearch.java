@@ -5,9 +5,7 @@ import entities.Contributor;
 import entities.Project;
 import entities.RawAssignments;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
@@ -22,7 +20,7 @@ public class IteratedLocalSearch {
 
         int i = 0;
         while (i < maxIteration) {
-            System.out.println(i);
+            System.out.println("step = " + i);
 
             int j = 0;
             while (j < maxIteration) {
@@ -38,6 +36,7 @@ public class IteratedLocalSearch {
 
             int delta = deltaQuality(Best, S, projects, contributors);
             if (delta > 0) {
+                System.out.println("added " + delta);
                 Best = new ArrayList<>(S);
             }
 
@@ -87,7 +86,7 @@ public class IteratedLocalSearch {
     }
 
     private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects, List<Contributor> contributors) {
-        int operator = (int) (Math.random() * 3); // generate a random number between 0 and 2
+        int operator = (int) (Math.random() * 4); // generate a random number between 0 and 2
 
         switch (operator) {
             case 0:
@@ -96,10 +95,20 @@ public class IteratedLocalSearch {
                 return InsertProjects(CopyS, projects, contributors);
             case 2:
                 return Inversion(CopyS);
-
+//            case 3:
+//                return ReplaceContributor(CopyS);
+            case 3:
+                return RemoveProject(CopyS);
             default:
                 return CopyS;
         }
+    }
+
+    private static List<Assignment> RemoveProject(List<Assignment> assignments) {
+        Random random = new Random();
+        int fromIndex = random.nextInt(assignments.size());
+        new ArrayList<>(assignments).remove(fromIndex);
+        return assignments;
     }
 
     private static List<Assignment> Swap(List<Assignment> CopyS) {
@@ -176,13 +185,28 @@ public class IteratedLocalSearch {
 
     private static List<Assignment> Perturb(List<Assignment> H) {
         // Generate two random indices within the bounds of the list
-        int index1 = (int) (Math.random() * H.size());
-        int index2 = (int) (Math.random() * H.size());
+//        int index1 = (int) (Math.random() * H.size());
+//        int index2 = (int) (Math.random() * H.size());
+//
+//        // Swap the elements at the random indices
+//        Assignment temp = H.get(index1);
+//        H.set(index1, H.get(index2));
+//        H.set(index2, temp);
+//        return H;
+        Random random = new Random();
 
-        // Swap the elements at the random indices
-        Assignment temp = H.get(index1);
-        H.set(index1, H.get(index2));
-        H.set(index2, temp);
+        int fromIndex = random.nextInt(H.size());
+        int toIndex = random.nextInt(H.size());
+
+        // Ensure that fromIndex is less than toIndex
+        if (fromIndex > toIndex) {
+            int temp = fromIndex;
+            fromIndex = toIndex;
+            toIndex = temp;
+        }
+
+        // Shuffle the sublist between fromIndex (inclusive) and toIndex (exclusive)
+        Collections.shuffle(H.subList(fromIndex, toIndex));
         return H;
     }
 }

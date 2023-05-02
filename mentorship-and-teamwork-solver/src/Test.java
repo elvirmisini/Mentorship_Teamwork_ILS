@@ -3,9 +3,6 @@ import entities.Contributor;
 import entities.Project;
 import entities.RawAssignments;
 import utilities.*;
-// import java.io.FileInputStream;
-// import java.io.IOException;
-// import java.util.Properties;
 
 import java.util.*;
 
@@ -42,7 +39,29 @@ public class Test {
 
         // Collections.shuffle(projects, new Random());
 
+
         List<Project> unchangedProjects = InputReader.readProjects(fileContents);
+
+        // contributors in descending order based on number of skills
+        Collections.sort(contributors, new Comparator<Contributor>() {
+            @Override
+            public int compare(Contributor c1, Contributor c2) {
+                return Integer.compare(c2.getSkills().size(), c1.getSkills().size());
+            }
+        });
+//        Collections.reverse(contributors);
+
+//         Sort projects in descending order based on number of skills
+        Collections.sort(projects, new Comparator<Project>() {
+            @Override
+            public int compare(Project p1, Project p2) {
+                return Integer.compare(p2.getSkills().size(), p1.getSkills().size());
+            }
+        });
+//        Collections.shuffle(projects, new Random());
+//        Collections.reverse(projects);
+
+//        projects.sort(new Project.ProjectComparator());
 
         List<Assignment> assignments = InitialSolver.solver(contributors, projects);
         if (Validator.areAssignmentsValid(RawAssignments.from(assignments), unchangedContributors, unchangedProjects,

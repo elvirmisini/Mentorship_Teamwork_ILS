@@ -1,17 +1,15 @@
 8
 Logging
-Njomza 
+Njomza
 People
-Diell 
+Diell
 WebServer
-Diell Njomza 
-Upload
-Bajram Dardan 
+Diell Njomza
 WebChat
-Diell Bajram 
+Diell Bajram
 WebSockets
-Diell Bajram 
+Diell Bajram
 Comments
-Diell 
+Diell
 Database
-Dardan 
+Dardan
