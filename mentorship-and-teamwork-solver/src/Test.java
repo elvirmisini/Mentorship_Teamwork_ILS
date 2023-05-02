@@ -19,17 +19,35 @@ public class Test {
         List<String> fileContents = InputReader.readFileContent(absoluteInputFilePath);
 
         List<Contributor> contributors = InputReader.readContributors(fileContents);
+
         Collections.shuffle(contributors, new Random());
         List<Contributor> unchangedContributors = InputReader.readContributors(fileContents);
 
         List<Project> projects = InputReader.readProjects(fileContents);
-        Collections.shuffle(projects, new Random());
+        // Sort contributors in descending order based on number of skills
+        Collections.sort(contributors, new Comparator<Contributor>() {
+            @Override
+            public int compare(Contributor c1, Contributor c2) {
+                return Integer.compare(c2.getSkills().size(), c1.getSkills().size());
+            }
+        });
+
+        // Sort projects in descending order based on number of skills
+        Collections.sort(projects, new Comparator<Project>() {
+            @Override
+            public int compare(Project p1, Project p2) {
+                return Integer.compare(p2.getSkills().size(), p1.getSkills().size());
+            }
+        });
+
+        // Collections.shuffle(projects, new Random());
+
         List<Project> unchangedProjects = InputReader.readProjects(fileContents);
 
         List<Assignment> assignments = InitialSolver.solver(contributors, projects);
         if (Validator.areAssignmentsValid(RawAssignments.from(assignments), unchangedContributors, unchangedProjects,
                 absoluteOutputFilePath)) {
-//            System.out.println(assignments);
+            // System.out.println(assignments);
             System.out.println("The solution is valid!");
 
             int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(assignments, contributors, projects);
@@ -61,7 +79,7 @@ public class Test {
                             InputReader.readContributors(fileContents), absoluteOutputFilePath));
 
             System.out.println();
-//            System.out.println(assignmentAfterILS);
+            // System.out.println(assignmentAfterILS);
             int fitnessScore = FitnessCalculator.getFitnessScore(assignmentAfterILS, contributors, projects);
             System.out.println("Fitness score: " + fitnessScore);
 
@@ -76,6 +94,6 @@ public class Test {
                 System.out.println("Wrong solution!");
             }
         }
-        
+
     }
 }
