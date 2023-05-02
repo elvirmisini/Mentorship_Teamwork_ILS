@@ -7,7 +7,17 @@ import java.util.stream.Collectors;
 
 public class InitialSolver {
 
-    public static List<FullAssignment> solver(List<Contributor> contributors, List<Project> projects) {
+    /*
+    The time complexity of the InitialSolver code is O(p * c * ps * cs), where:
+        p = number of projects
+        c = number of contributors
+        ps = maximum number of skills per project
+        cs = maximum number of skills per contributor
+
+    This initial solution solver takes in consideration all the constraints of the problem.
+    */
+
+    public static List<FullAssignment> solve(List<Contributor> contributors, List<Project> projects) {
         Map<UUID, Map<UUID, Skill>> contributorSkillsMap = contributors.stream().collect(Collectors.toMap(Contributor::getId, contributor ->
                 contributor.getSkills().stream().collect(Collectors.toMap(Skill::getId, skill -> skill))
         ));
@@ -103,9 +113,12 @@ public class InitialSolver {
 
     private static void increaseLevelOfAssignedContributorSkills(List<ContributorWithAssignedSkill> contributors, Map<UUID, Map<UUID, Skill>> contributorSkillsMap) {
         for (ContributorWithAssignedSkill contributorWithSkill : contributors) {
-            contributorSkillsMap.get(contributorWithSkill.getContributor().getId())
-                    .get(contributorWithSkill.getAssignedSkill().getId())
-                    .setLevel(contributorWithSkill.getAssignedSkill().getLevel() + 1);
+            Skill skill = contributorSkillsMap.get(contributorWithSkill.getContributor().getId())
+                    .get(contributorWithSkill.getAssignedSkill().getId());
+
+            if (skill != null) {
+                skill.setLevel(contributorWithSkill.getAssignedSkill().getLevel() + 1);
+            }
         }
     }
 

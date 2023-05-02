@@ -60,7 +60,9 @@ public class Test {
 
 //        projects.sort(new Project.ProjectComparator());
 
-        List<FullAssignment> fullAssignments = InitialSolver.solver(contributors, projects);
+//        List<FullAssignment> fullAssignments = InitialSolver.solver(contributors, projects);
+
+        List<FullAssignment> fullAssignments = InitialSolver.solve(contributors, projects);
 
         if (Validator.areAssignmentsValid(NameAssignment.from(fullAssignments), unchangedContributors, unchangedProjects,
                 absoluteOutputFilePath)) {

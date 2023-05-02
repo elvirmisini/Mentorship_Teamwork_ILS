@@ -1,15 +1,17 @@
 8
-Logging
-Njomza
-People
-Diell
-WebServer
-Diell Njomza
-WebChat
-Diell Bajram
-WebSockets
-Diell Bajram
-Comments
-Diell
+Upload
+Bajram Dardan 
 Database
-Dardan
+Dardan 
+WebServer
+Diell Njomza 
+Logging
+Njomza 
+People
+Diell 
+WebChat
+Bajram Diell 
+WebSockets
+Diell Bajram 
+Comments
+Diell 
