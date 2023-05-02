@@ -14,13 +14,4 @@ public class Contributor {
     private UUID id;
     private String name;
     private List<Skill> skills;
-
-    public int getSkillLevel(String skillName) {
-        for (Skill skill : skills) {
-            if (skill.getName().equals(skillName)) {
-                return skill.getLevel();
-            }
-        }
-        return 0;
-    }
 }

@@ -1,6 +1,9 @@
 package utilities;
 
-import entities.*;
+import entities.Contributor;
+import entities.NameAssignment;
+import entities.Project;
+import entities.Skill;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,34 +16,42 @@ public class InputReader {
         Scanner input = new Scanner(System.in);
         System.out.print("Choose the file.\na, b, c, d, e, f, class\nYour choice: ");
         String chosenFile = input.nextLine();
-//        String absoluteInputFilePath = "C:\\Users\\Elvir Misini\\Desktop\\Mentorship_Teamwork_ILS\\mentorship-and-teamwork-solver\\src\\input_files\\";
-//        String absoluteOutputFilePath = "C:\\Users\\Elvir Misini\\Desktop\\Mentorship_Teamwork_ILS\\mentorship-and-teamwork-solver\\src\\output_files\\";
-         String absoluteInputFilePath = "src\\input_files\\";
-         String absoluteOutputFilePath = "src\\output_files\\";
 
-        if (Objects.equals(chosenFile, "a")) {
-            absoluteInputFilePath += "a_an_example.in.txt";
-            absoluteOutputFilePath += "a.txt";
-        } else if (Objects.equals(chosenFile, "b")) {
-            absoluteInputFilePath += "b_better_start_small.in.txt";
-            absoluteOutputFilePath += "b.txt";
-        } else if (Objects.equals(chosenFile, "c")) {
-            absoluteInputFilePath += "c_collaboration.in.txt";
-            absoluteOutputFilePath += "c.txt";
-        } else if (Objects.equals(chosenFile, "d")) {
-            absoluteInputFilePath += "d_dense_schedule.in.txt";
-            absoluteOutputFilePath += "d.txt";
-        } else if (Objects.equals(chosenFile, "e")) {
-            absoluteInputFilePath += "e_exceptional_skills.in.txt";
-            absoluteOutputFilePath += "e.txt";
-        } else if (Objects.equals(chosenFile, "f")) {
-            absoluteInputFilePath += "f_find_great_mentors.in.txt";
-            absoluteOutputFilePath += "f.txt";
-        } else if (Objects.equals(chosenFile, "class")) {
-            absoluteInputFilePath += "class_task.in.txt";
-            absoluteOutputFilePath += "class.txt";
-        } else {
-            throw new Exception("Wrong input/output for file name");
+        String absoluteInputFilePath = "src\\input_files\\";
+        String absoluteOutputFilePath = "src\\output_files\\";
+        String fileExtension = ".txt";
+
+        switch (chosenFile) {
+            case "a":
+                absoluteInputFilePath += "a_an_example.in" + fileExtension;
+                absoluteOutputFilePath += "a" + fileExtension;
+                break;
+            case "b":
+                absoluteInputFilePath += "b_better_start_small.in" + fileExtension;
+                absoluteOutputFilePath += "b" + fileExtension;
+                break;
+            case "c":
+                absoluteInputFilePath += "c_collaboration.in" + fileExtension;
+                absoluteOutputFilePath += "c" + fileExtension;
+                break;
+            case "d":
+                absoluteInputFilePath += "d_dense_schedule.in" + fileExtension;
+                absoluteOutputFilePath += "d" + fileExtension;
+                break;
+            case "e":
+                absoluteInputFilePath += "e_exceptional_skills.in" + fileExtension;
+                absoluteOutputFilePath += "e" + fileExtension;
+                break;
+            case "f":
+                absoluteInputFilePath += "f_find_great_mentors.in" + fileExtension;
+                absoluteOutputFilePath += "f" + fileExtension;
+                break;
+            case "class":
+                absoluteInputFilePath += "class_task.in" + fileExtension;
+                absoluteOutputFilePath += "class" + fileExtension;
+                break;
+            default:
+                throw new Exception("Wrong input/output for file name");
         }
 
         return List.of(absoluteInputFilePath, absoluteOutputFilePath);
@@ -58,18 +69,21 @@ public class InputReader {
     public static List<Contributor> readContributors(List<String> fileContents) {
         int numberOfContributors = Integer.parseInt(fileContents.get(0).split(" ")[0]);
         List<Contributor> contributors = new ArrayList<>();
-        int i = 1;
-        while (i <= numberOfContributors) {
+
+        int currentLine = 1;
+        while (currentLine <= numberOfContributors) {
             Contributor contributor = new Contributor();
             contributor.setId(UUID.randomUUID());
-            String[] nameAndNrOfSkills = fileContents.get(i).split(" ");
-            contributor.setName(nameAndNrOfSkills[0]);
-            int numberOfSkills = Integer.parseInt(nameAndNrOfSkills[1]);
 
+            String[] nameAndNrOfSkills = fileContents.get(currentLine).split(" ");
+            contributor.setName(nameAndNrOfSkills[0]);
+
+            int numberOfSkills = Integer.parseInt(nameAndNrOfSkills[1]);
             List<Skill> skills = new ArrayList<>();
+
             for (int j = 1; j <= numberOfSkills; j++) {
                 Skill skill = new Skill();
-                String[] skillAndLevel = fileContents.get(i + j).split(" ");
+                String[] skillAndLevel = fileContents.get(currentLine + j).split(" ");
                 skill.setId(UUID.randomUUID());
                 skill.setName(skillAndLevel[0]);
                 skill.setLevel(Integer.parseInt(skillAndLevel[1]));
@@ -80,65 +94,84 @@ public class InputReader {
             contributors.add(contributor);
 
             numberOfContributors += numberOfSkills;
-            i += numberOfSkills + 1;
+            currentLine += numberOfSkills + 1;
         }
+
         return contributors;
     }
 
-    public static List<Project> readProjects(List<String> fileContents) {
-        int numberOfProjects = Integer.parseInt(fileContents.get(0).split(" ")[1]);
+    public static List<Project> readProjects(List<String> fileLines) {
+        int totalProjects = Integer.parseInt(fileLines.get(0).split(" ")[1]);
 
-        int lineStartOfProjectsInContent = 0;
-        for (int i = 0; i < fileContents.size(); i++) {
-            String[] content = fileContents.get(i).split(" ");
-            if (content.length == 5) {
-                lineStartOfProjectsInContent = i;
-                break;
-            }
-        }
-        List<String> fileContentsForProjects = fileContents.subList(lineStartOfProjectsInContent, fileContents.size());
+        int projectsStartLine = findProjectsStartLine(fileLines);
+        List<String> projectLines = fileLines.subList(projectsStartLine, fileLines.size());
+
         List<Project> projectList = new ArrayList<>();
-        int i = 0;
-        while (i < numberOfProjects) {
+        int currentLineIndex = 0;
+
+        while (currentLineIndex < totalProjects) {
             Project project = new Project();
             project.setId(UUID.randomUUID());
-            String[] projectInfo = fileContentsForProjects.get(i).split(" ");
+
+            String[] projectInfo = projectLines.get(currentLineIndex).split(" ");
             project.setName(projectInfo[0]);
             project.setDaysToComplete(Integer.parseInt(projectInfo[1]));
             project.setScore(Integer.parseInt(projectInfo[2]));
             project.setBestBefore(Integer.parseInt(projectInfo[3]));
-            int numberOfSkills = Integer.parseInt(projectInfo[4]);
 
-            List<Skill> skills = new ArrayList<>();
-            for (int j = 1; j <= numberOfSkills; j++) {
-                Skill skill = new Skill();
-                skill.setId(UUID.randomUUID());
-                String[] skillAndLevel = fileContentsForProjects.get(i + j).split(" ");
-                skill.setName(skillAndLevel[0]);
-                skill.setLevel(Integer.parseInt(skillAndLevel[1]));
-                skills.add(skill);
-            }
+            int skillsCount = Integer.parseInt(projectInfo[4]);
+            List<Skill> skills = extractSkillsFromLines(projectLines, currentLineIndex + 1, skillsCount);
+
             project.setSkills(skills);
             projectList.add(project);
-            numberOfProjects += numberOfSkills;
-            i += numberOfSkills + 1;
+
+            totalProjects += skillsCount;
+            currentLineIndex += skillsCount + 1;
         }
         return projectList;
     }
 
-    public static List<NameAssignment> readAssignments(String filename) {
-        List<NameAssignment> assignments = new ArrayList<>();
-        List<String> fileContents = readFileContent(filename);
-
-        for (int i = 1, j = 2; i < fileContents.size(); i = i + 2, j = j + 2) {
-            NameAssignment assignment = new NameAssignment();
-            assignment.setProject(fileContents.get(i));
-            assignment.setId(UUID.randomUUID());
-            String[] contributorNames = fileContents.get(j).split(" ");
-            List<String> assignmentContributors = new ArrayList<>(Arrays.asList(contributorNames));
-            assignment.setAssignedContributors(assignmentContributors);
-            assignments.add(assignment);
+    private static int findProjectsStartLine(List<String> fileLines) {
+        for (int i = 0; i < fileLines.size(); i++) {
+            String[] content = fileLines.get(i).split(" ");
+            if (content.length == 5) {
+                return i;
+            }
         }
-        return assignments;
+        return 0;
+    }
+
+    private static List<Skill> extractSkillsFromLines(List<String> projectLines, int startIndex, int skillsCount) {
+        List<Skill> skills = new ArrayList<>();
+        for (int i = startIndex, limit = startIndex + skillsCount; i < limit; i++) {
+            Skill skill = new Skill();
+            skill.setId(UUID.randomUUID());
+
+            String[] skillAndLevel = projectLines.get(i).split(" ");
+            skill.setName(skillAndLevel[0]);
+            skill.setLevel(Integer.parseInt(skillAndLevel[1]));
+
+            skills.add(skill);
+        }
+        return skills;
+    }
+
+    public static List<NameAssignment> readAssignments(String filename) {
+        List<NameAssignment> nameAssignments = new ArrayList<>();
+        List<String> fileLines = readFileContent(filename);
+
+        for (int projectLineIndex = 1, contributorsLineIndex = 2; projectLineIndex < fileLines.size(); projectLineIndex += 2, contributorsLineIndex += 2) {
+
+            NameAssignment nameAssignment = new NameAssignment();
+            nameAssignment.setProject(fileLines.get(projectLineIndex));
+            nameAssignment.setId(UUID.randomUUID());
+
+            String[] contributorNamesArray = fileLines.get(contributorsLineIndex).split(" ");
+            List<String> assignedContributors = new ArrayList<>(Arrays.asList(contributorNamesArray));
+            nameAssignment.setAssignedContributors(assignedContributors);
+
+            nameAssignments.add(nameAssignment);
+        }
+        return nameAssignments;
     }
 }

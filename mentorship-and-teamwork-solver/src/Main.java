@@ -3,14 +3,14 @@ import utilities.*;
 
 import java.util.*;
 
-public class Test {
+public class Main {
 
     public static void main(String[] args) throws Exception {
         List<String> fileNames = InputReader.readFileName();
-        String absoluteInputFilePath = fileNames.get(0);
-        String absoluteOutputFilePath = fileNames.get(1);
+        String inputFileName = fileNames.get(0);
+        String outputFileName = fileNames.get(1);
 
-        List<String> fileContents = InputReader.readFileContent(absoluteInputFilePath);
+        List<String> fileContents = InputReader.readFileContent(inputFileName);
 
         List<Contributor> contributors = InputReader.readContributors(fileContents);
 
@@ -65,27 +65,14 @@ public class Test {
         List<FullAssignment> fullAssignments = InitialSolver.solve(contributors, projects);
 
         if (Validator.areAssignmentsValid(NameAssignment.from(fullAssignments), unchangedContributors, unchangedProjects,
-                absoluteOutputFilePath)) {
+                outputFileName)) {
             // System.out.println(assignments);
             System.out.println("The solution is valid!");
 
             int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(fullAssignments);
             System.out.println("Fitness score: " + fitnessScoreOfInitialSolution);
 
-            Properties prop = new Properties();
-
-            // try {
-            // FileInputStream input = new FileInputStream("config.properties");
-            // prop.load(input);
-            // } catch (IOException ex) {
-            // ex.printStackTrace();
-            // }
-
-            // String maxIterationsStr = prop.getProperty("max_iterations");
-            // int maxIterations = Integer.parseInt(maxIterationsStr);
-
-            // System.out.println("MaxIterations " + maxIterations);
-
+            //***** This should be deleted when we leave the program to be executed as command-line
             Scanner input = new Scanner(System.in);
             System.out.print("Write a number for max iterations: ");
             String number_in = input.nextLine();
@@ -95,19 +82,19 @@ public class Test {
             List<FullAssignment> fullAssignmentAfterILS = new ArrayList<>(
                     IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(
                             fullAssignments, max_iterations, InputReader.readProjects(fileContents),
-                            InputReader.readContributors(fileContents), absoluteOutputFilePath));
+                            InputReader.readContributors(fileContents), outputFileName));
 
             System.out.println();
             // System.out.println(assignmentAfterILS);
             int fitnessScore = FitnessCalculator.getFitnessScore(fullAssignmentAfterILS);
             System.out.println("Fitness score: " + fitnessScore);
 
-            OutputWriter.writeContent(fullAssignmentAfterILS, absoluteOutputFilePath);
+            OutputWriter.writeContent(fullAssignmentAfterILS, outputFileName);
             System.out.println("Wrote assignments\n");
 
-            List<NameAssignment> rawAssignments = InputReader.readAssignments(absoluteOutputFilePath);
+            List<NameAssignment> rawAssignments = InputReader.readAssignments(outputFileName);
             if (Validator.areAssignmentsValid(rawAssignments, unchangedContributors, unchangedProjects,
-                    absoluteOutputFilePath)) {
+                    outputFileName)) {
                 System.out.println("The solution is valid!");
             } else {
                 System.out.println("Wrong solution!");
