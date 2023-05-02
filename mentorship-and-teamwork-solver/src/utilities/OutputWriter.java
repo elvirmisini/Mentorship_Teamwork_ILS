@@ -11,20 +11,20 @@ import java.util.List;
 public class OutputWriter {
 
     public static void writeContent(List<FullAssignment> fullAssignments, String fileName) throws IOException {
-        List<NameAssignment> correctAssignments = new ArrayList<>();
+        List<NameAssignment> nameAssignments = new ArrayList<>();
 
-        for (int i = 0; i < fullAssignments.size(); i++) {
-            if (fullAssignments.get(i).getProject() != null) {
-                correctAssignments.add(new NameAssignment(fullAssignments.get(i).getProject().getName(), fullAssignments.get(i).getContributorNames()));
+        for (FullAssignment fullAssignment : fullAssignments) {
+            if (fullAssignment.getProject() != null) {
+                nameAssignments.add(new NameAssignment(fullAssignment.getProject().getName(), fullAssignment.getContributorNames()));
             }
         }
 
         FileWriter writer = new FileWriter(fileName);
-        writer.write(correctAssignments.size() + "\n");
+        writer.write(nameAssignments.size() + "\n");
 
-        for (int i = 0; i < correctAssignments.size(); i++) {
-            writer.write(correctAssignments.get(i).getProject() + "\n");
-            for (String contributorName : correctAssignments.get(i).getAssignedContributors()) {
+        for (NameAssignment nameAssignment : nameAssignments) {
+            writer.write(nameAssignment.getProject() + "\n");
+            for (String contributorName : nameAssignment.getAssignedContributors()) {
                 writer.write(contributorName + " ");
             }
             writer.write("\n");

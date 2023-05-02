@@ -64,8 +64,7 @@ public class Main {
 
         List<FullAssignment> fullAssignments = InitialSolver.solve(contributors, projects);
 
-        if (Validator.areAssignmentsValid(NameAssignment.from(fullAssignments), unchangedContributors, unchangedProjects,
-                outputFileName)) {
+        if (Validator.areAssignmentsValid(NameAssignment.from(fullAssignments), unchangedContributors, unchangedProjects)) {
             // System.out.println(assignments);
             System.out.println("The solution is valid!");
 
@@ -93,8 +92,7 @@ public class Main {
             System.out.println("Wrote assignments\n");
 
             List<NameAssignment> rawAssignments = InputReader.readAssignments(outputFileName);
-            if (Validator.areAssignmentsValid(rawAssignments, unchangedContributors, unchangedProjects,
-                    outputFileName)) {
+            if (Validator.areAssignmentsValid(rawAssignments, unchangedContributors, unchangedProjects)) {
                 System.out.println("The solution is valid!");
             } else {
                 System.out.println("Wrong solution!");

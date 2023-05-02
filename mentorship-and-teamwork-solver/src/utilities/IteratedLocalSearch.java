@@ -25,7 +25,7 @@ public class IteratedLocalSearch {
             int j = 0;
             while (j < maxIteration) {
                 List<FullAssignment> R = Tweak(Copy(S), projects, contributors);
-                if (Validator.areAssignmentsValid(NameAssignment.from(R), contributors, projects, outputFile)) {
+                if (Validator.areAssignmentsValid(NameAssignment.from(R), contributors, projects)) {
                     int delta = deltaQuality(S, R, projects, contributors);
                     if (delta > 0) {
                         S = new ArrayList<>(R);
@@ -42,7 +42,7 @@ public class IteratedLocalSearch {
 
             H = NewHomeBase(H, S, projects, contributors);
             List<FullAssignment> PerturbedS = Perturb(H);
-            if (Validator.areAssignmentsValid(NameAssignment.from(PerturbedS), contributors, projects, outputFile)) {
+            if (Validator.areAssignmentsValid(NameAssignment.from(PerturbedS), contributors, projects)) {
                 S = PerturbedS;
             }
             i++;
