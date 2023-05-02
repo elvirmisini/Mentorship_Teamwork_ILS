@@ -133,8 +133,9 @@ public class InitialSolver {
                     }
                 }
             }
-
-            fullAssignments.add(fullAssignment);
+            if(fullAssignment.getProject() != null) {
+                fullAssignments.add(fullAssignment);
+            }
         }
 
         return fullAssignments;

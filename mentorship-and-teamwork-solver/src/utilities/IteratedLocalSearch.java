@@ -73,7 +73,7 @@ public class IteratedLocalSearch {
     // }
 
     private static int Quality(List<FullAssignment> R, List<Project> projects, List<Contributor> contributors) {
-        return FitnessCalculator.getFitnessScore(R, contributors, projects);
+        return FitnessCalculator.getFitnessScore(R);
     }
 
     private static List<FullAssignment> NewHomeBase(List<FullAssignment> H, List<FullAssignment> S, List<Project> projects,

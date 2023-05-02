@@ -61,12 +61,13 @@ public class Test {
 //        projects.sort(new Project.ProjectComparator());
 
         List<FullAssignment> fullAssignments = InitialSolver.solver(contributors, projects);
+
         if (Validator.areAssignmentsValid(NameAssignment.from(fullAssignments), unchangedContributors, unchangedProjects,
                 absoluteOutputFilePath)) {
             // System.out.println(assignments);
             System.out.println("The solution is valid!");
 
-            int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(fullAssignments, contributors, projects);
+            int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(fullAssignments);
             System.out.println("Fitness score: " + fitnessScoreOfInitialSolution);
 
             Properties prop = new Properties();
@@ -96,7 +97,7 @@ public class Test {
 
             System.out.println();
             // System.out.println(assignmentAfterILS);
-            int fitnessScore = FitnessCalculator.getFitnessScore(fullAssignmentAfterILS, contributors, projects);
+            int fitnessScore = FitnessCalculator.getFitnessScore(fullAssignmentAfterILS);
             System.out.println("Fitness score: " + fitnessScore);
 
             OutputWriter.writeContent(fullAssignmentAfterILS, absoluteOutputFilePath);
