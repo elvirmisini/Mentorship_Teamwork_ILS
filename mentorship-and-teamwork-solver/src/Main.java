@@ -1,103 +1,55 @@
-import entities.*;
+import entities.Contributor;
+import entities.FullAssignment;
+import entities.NameAssignment;
+import entities.Project;
 import utilities.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
         List<String> fileNames = InputReader.readFileName();
-        String inputFileName = fileNames.get(0);
-        String outputFileName = fileNames.get(1);
-
-        List<String> fileContents = InputReader.readFileContent(inputFileName);
-
+        List<String> fileContents = InputReader.readFileContent(fileNames.get(0));
         List<Contributor> contributors = InputReader.readContributors(fileContents);
+        List<Project> projects = InputReader.readProjects(fileContents);
 
         Collections.shuffle(contributors, new Random());
-        List<Contributor> unchangedContributors = InputReader.readContributors(fileContents);
+        Collections.shuffle(projects, new Random());
 
-        List<Project> projects = InputReader.readProjects(fileContents);
-        // Sort contributors in descending order based on number of skills
-        Collections.sort(contributors, new Comparator<Contributor>() {
-            @Override
-            public int compare(Contributor c1, Contributor c2) {
-                return Integer.compare(c2.getSkills().size(), c1.getSkills().size());
-            }
-        });
-
-        // Sort projects in descending order based on number of skills
-        Collections.sort(projects, new Comparator<Project>() {
-            @Override
-            public int compare(Project p1, Project p2) {
-                return Integer.compare(p2.getSkills().size(), p1.getSkills().size());
-            }
-        });
-
-        // Collections.shuffle(projects, new Random());
-
-
-        List<Project> unchangedProjects = InputReader.readProjects(fileContents);
-
-        // contributors in descending order based on number of skills
-        Collections.sort(contributors, new Comparator<Contributor>() {
-            @Override
-            public int compare(Contributor c1, Contributor c2) {
-                return Integer.compare(c2.getSkills().size(), c1.getSkills().size());
-            }
-        });
-//        Collections.reverse(contributors);
-
-//         Sort projects in descending order based on number of skills
-        Collections.sort(projects, new Comparator<Project>() {
-            @Override
-            public int compare(Project p1, Project p2) {
-                return Integer.compare(p2.getSkills().size(), p1.getSkills().size());
-            }
-        });
-//        Collections.shuffle(projects, new Random());
-//        Collections.reverse(projects);
-
-//        projects.sort(new Project.ProjectComparator());
-
-//        List<FullAssignment> fullAssignments = InitialSolver.solver(contributors, projects);
+        List<Contributor> firstCopyOfContributors = contributors.stream().map(Contributor::deepCopy).collect(Collectors.toList());
+        List<Contributor> secondCopyOfContributors = contributors.stream().map(Contributor::deepCopy).collect(Collectors.toList());
+        List<Project> firstCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
+        List<Project> secondCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
 
         List<FullAssignment> fullAssignments = InitialSolver.solve(contributors, projects);
 
-        if (Validator.areAssignmentsValid(NameAssignment.from(fullAssignments), unchangedContributors, unchangedProjects)) {
-            // System.out.println(assignments);
+        if (Validator.areAssignmentsValid(fullAssignments, firstCopyOfContributors, firstCopyOfProjects)) {
             System.out.println("The solution is valid!");
+            System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignments));
 
-            int fitnessScoreOfInitialSolution = FitnessCalculator.getFitnessScore(fullAssignments);
-            System.out.println("Fitness score: " + fitnessScoreOfInitialSolution);
-
-            //***** This should be deleted when we leave the program to be executed as command-line
+            //**********************************************************************************************************
+            // This should be deleted when we leave the program to be executed as command-line
             Scanner input = new Scanner(System.in);
             System.out.print("Write a number for max iterations: ");
             String number_in = input.nextLine();
-
             int max_iterations = Integer.parseInt(number_in);
+            //**********************************************************************************************************
 
-            List<FullAssignment> fullAssignmentAfterILS = new ArrayList<>(
-                    IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(
-                            fullAssignments, max_iterations, InputReader.readProjects(fileContents),
-                            InputReader.readContributors(fileContents), outputFileName));
+            List<FullAssignment> fullAssignmentAfterILS = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(fullAssignments, max_iterations, projects, contributors);
+            System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignmentAfterILS));
 
-            System.out.println();
-            // System.out.println(assignmentAfterILS);
-            int fitnessScore = FitnessCalculator.getFitnessScore(fullAssignmentAfterILS);
-            System.out.println("Fitness score: " + fitnessScore);
-
-            OutputWriter.writeContent(fullAssignmentAfterILS, outputFileName);
-            System.out.println("Wrote assignments\n");
-
-            List<NameAssignment> rawAssignments = InputReader.readAssignments(outputFileName);
-            if (Validator.areAssignmentsValid(rawAssignments, unchangedContributors, unchangedProjects)) {
+            List<NameAssignment> nameAssignments = InputReader.readAssignments(fileNames.get(1));
+            if (Validator.areTheFinalAssignmentsValid(nameAssignments, secondCopyOfContributors, secondCopyOfProjects)) {
                 System.out.println("The solution is valid!");
+                OutputWriter.writeContent(fullAssignmentAfterILS, fileNames.get(1));
             } else {
                 System.out.println("Wrong solution!");
             }
         }
-
     }
 }

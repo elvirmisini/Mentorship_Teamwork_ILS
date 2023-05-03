@@ -13,4 +13,12 @@ public class Skill {
     private UUID id;
     private String name;
     private int level;
+
+    public Skill deepCopy() {
+        Skill newSkill = new Skill();
+        newSkill.setId(id);
+        newSkill.setName(name);
+        newSkill.setLevel(level);
+        return newSkill;
+    }
 }

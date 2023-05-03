@@ -30,5 +30,7 @@ public class OutputWriter {
             writer.write("\n");
         }
         writer.close();
+
+        System.out.println("Wrote assignments\n");
     }
 }

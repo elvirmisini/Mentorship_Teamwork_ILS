@@ -7,13 +7,38 @@ import java.util.stream.Collectors;
 
 public class Validator {
 
-    public static boolean areAssignmentsValid(List<NameAssignment> nameAssignments, List<Contributor> contributors, List<Project> projects) {
+    public static boolean areTheFinalAssignmentsValid(List<NameAssignment> nameAssignments, List<Contributor> contributors, List<Project> projects) {
+        List<FullAssignment> assignments = new ArrayList<>();
+
+        for (NameAssignment nameAssignment : nameAssignments) {
+            FullAssignment fullAssignment = new FullAssignment();
+            fullAssignment.setId(nameAssignment.getId());
+
+            Project project = new Project();
+            project.setName(nameAssignment.getProject());
+            fullAssignment.setProject(project);
+
+            List<Contributor> contributorList = new ArrayList<>();
+            for (int j = 0; j < nameAssignment.getAssignedContributors().size(); j++) {
+                Contributor contributor = new Contributor();
+                contributor.setName(nameAssignment.getAssignedContributors().get(j));
+                contributorList.add(contributor);
+            }
+            fullAssignment.setContributors(contributorList);
+
+            assignments.add(fullAssignment);
+        }
+
+        return areAssignmentsValid(assignments, contributors, projects);
+    }
+
+    public static boolean areAssignmentsValid(List<FullAssignment> fullAssignments, List<Contributor> contributors, List<Project> projects) {
         Map<String, Project> projectMapByName = projects.stream().collect(Collectors.toMap(Project::getName, project -> project));
         List<String> contributorNames = contributors.stream().map(Contributor::getName).collect(Collectors.toList());
 
-        for (NameAssignment nameAssignment : nameAssignments) {
-            String assignedProject = nameAssignment.getProject();
-            List<String> assignedContributors = nameAssignment.getAssignedContributors();
+        for (FullAssignment fullAssignment : fullAssignments) {
+            String assignedProject = fullAssignment.getProject().getName();
+            List<String> assignedContributors = fullAssignment.getContributorNames();
 
             if (!projectMapByName.containsKey(assignedProject)) {
                 System.out.println("Error. Assigned project " + assignedProject + " does not exist!");
@@ -35,26 +60,26 @@ public class Validator {
                 return false;
             }
 
-            if (nameAssignment.getAssignedContributors().size() != projectMapByName.get(assignedProject).getSkills().size()) {
-                System.out.println("Error. Project " + nameAssignment.getProject() + " has wrong number of contributors!");
+            if (fullAssignment.getContributors().size() != projectMapByName.get(assignedProject).getSkills().size()) {
+                System.out.println("Error. Project " + fullAssignment.getProject() + " has wrong number of contributors!");
                 return false;
             }
         }
 
-        return areAssignedContributorsToProjectsValid(nameAssignments, contributors, projects);
+        return areAssignedContributorsToProjectsValidForFullAssignments(fullAssignments, contributors, projects);
     }
 
-    private static boolean areAssignedContributorsToProjectsValid(List<NameAssignment> rawAssignments, List<Contributor> contributors, List<Project> projects) {
+    private static boolean areAssignedContributorsToProjectsValidForFullAssignments(List<FullAssignment> assignments, List<Contributor> contributors, List<Project> projects) {
         Map<String, Contributor> contributorMap = contributors.stream().collect(Collectors.toMap(Contributor::getName, contributor -> contributor));
         Map<String, Project> projectMap = projects.stream().collect(Collectors.toMap(Project::getName, project -> project));
 
         List<FullAssignment> fullAssignments = new ArrayList<>();
 
-        for (int i = 0; i < rawAssignments.size(); i++) {
-            Project project = projectMap.get(rawAssignments.get(i).getProject());
+        for (int i = 0; i < assignments.size(); i++) {
+            Project project = projectMap.get(assignments.get(i).getProject().getName());
             List<Contributor> assignedContributors = new ArrayList<>();
-            for (int j = 0; j < rawAssignments.get(i).getAssignedContributors().size(); j++) {
-                assignedContributors.add(contributorMap.get(rawAssignments.get(i).getAssignedContributors().get(j)));
+            for (int j = 0; j < assignments.get(i).getContributors().size(); j++) {
+                assignedContributors.add(contributorMap.get(assignments.get(i).getContributorNames().get(j)));
             }
             fullAssignments.add(new FullAssignment(UUID.randomUUID(), project, assignedContributors));
         }
@@ -118,6 +143,7 @@ public class Validator {
             }
             if (contributorFulfillsAtLeastOneRequiredSkill == 0) {
                 System.out.println("Error. Contributor does not have any skill for the project " + project.getName());
+                System.out.println("Assignment: " + fullAssignments.get(i));
                 return false;
             } else {
                 increaseContributorsScore(contributorsToIncreaseScore);
