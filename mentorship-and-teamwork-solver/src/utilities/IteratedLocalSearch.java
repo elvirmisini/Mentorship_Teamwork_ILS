@@ -14,10 +14,11 @@ import java.util.stream.Collectors;
 public class IteratedLocalSearch {
 
     public static List<FullAssignment> iteratedLocalSearchWithRandomRestarts(List<FullAssignment> initialSolution,
-            int maxMinutes, List<Project> projects, List<Contributor> contributors) {
+                                                                             int maxMinutes, List<Project> projects, List<Contributor> contributors) {
         List<Contributor> contributorsBeforeILS = contributors.stream().map(Contributor::deepCopy)
                 .collect(Collectors.toList());
         List<Project> projectsBeforeILS = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
+        List<FullAssignment> initialSolutionBeforeILS = initialSolution.stream().map(FullAssignment::deepCopy).collect(Collectors.toList());
 
         List<FullAssignment> S = new ArrayList<>(initialSolution);
         List<FullAssignment> H = new ArrayList<>(S);
@@ -54,7 +55,8 @@ public class IteratedLocalSearch {
         if (Validator.areAssignmentsValid(Best, contributorsBeforeILS, projectsBeforeILS)) {
             return Best;
         } else {
-            return initialSolution;
+            System.out.println("Changed assignments with ILS are not valid!");
+            return initialSolutionBeforeILS;
         }
     }
 
@@ -79,7 +81,7 @@ public class IteratedLocalSearch {
     }
 
     private static List<FullAssignment> Tweak(List<FullAssignment> CopyS, List<Project> projects,
-            List<Contributor> contributors) {
+                                              List<Contributor> contributors) {
         int operator = (int) (Math.random() * 4);
 
         switch (operator) {
@@ -105,7 +107,7 @@ public class IteratedLocalSearch {
     }
 
     private static List<FullAssignment> InsertProjects(List<FullAssignment> fullAssignments, List<Project> projects,
-            List<Contributor> contributors) {
+                                                       List<Contributor> contributors) {
         List<String> assignedProjectIds = fullAssignments.stream().map(assignment -> {
             if (assignment != null) {
                 if (assignment.getProject() != null) {

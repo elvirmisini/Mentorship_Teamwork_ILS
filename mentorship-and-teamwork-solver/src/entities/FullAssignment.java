@@ -1,5 +1,6 @@
 package entities;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -46,4 +47,16 @@ public class FullAssignment {
         return contributors.stream().map(Contributor::getName).collect(Collectors.toList());
     }
 
+    public FullAssignment deepCopy() {
+        FullAssignment fullAssignment = new FullAssignment();
+        fullAssignment.setId(id);
+        fullAssignment.setProject(project);
+
+        List<Contributor> copiedContributors = new ArrayList<>();
+        for (Contributor contributor : contributors) {
+            copiedContributors.add(contributor.deepCopy());
+        }
+        fullAssignment.setContributors(copiedContributors);
+        return fullAssignment;
+    }
 }

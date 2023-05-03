@@ -29,22 +29,31 @@ public class Main {
 
         List<FullAssignment> fullAssignments = InitialSolver.solve(contributors, projects);
 
-        if (Validator.areAssignmentsValid(fullAssignments, firstCopyOfContributors, firstCopyOfProjects)) {
-            System.out.println("The solution is valid!");
-            System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignments));
-
-            List<FullAssignment> fullAssignmentAfterILS = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(
-                    fullAssignments, Integer.parseInt(args[1]), projects, contributors);
-            System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignmentAfterILS));
-            OutputWriter.writeContent(fullAssignmentAfterILS, fileNames.get(1));
-
-            List<NameAssignment> nameAssignments = InputReader.readAssignments(fileNames.get(1));
-            if (Validator.areTheFinalAssignmentsValid(nameAssignments, secondCopyOfContributors,
-                    secondCopyOfProjects)) {
-                System.out.println("The solution is valid!");
+        while (true) {
+            if (!Validator.areAssignmentsValid(fullAssignments, firstCopyOfContributors, firstCopyOfProjects)) {
+                Collections.shuffle(contributors, new Random());
+                Collections.shuffle(projects, new Random());
+                fullAssignments = InitialSolver.solve(contributors, projects);
             } else {
-                System.out.println("Wrong solution!");
+                break;
             }
         }
+
+        System.out.println("The solution is valid!");
+        System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignments));
+
+        List<FullAssignment> fullAssignmentAfterILS = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(
+                fullAssignments, Integer.parseInt(args[1]), projects, contributors);
+        System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignmentAfterILS));
+        OutputWriter.writeContent(fullAssignmentAfterILS, fileNames.get(1));
+
+        List<NameAssignment> nameAssignments = InputReader.readAssignments(fileNames.get(1));
+        if (Validator.areTheFinalAssignmentsValid(nameAssignments, secondCopyOfContributors,
+                secondCopyOfProjects)) {
+            System.out.println("The solution is valid!");
+        } else {
+            System.out.println("Wrong solution!");
+        }
+
     }
 }
