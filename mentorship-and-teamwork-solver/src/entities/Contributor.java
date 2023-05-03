@@ -43,6 +43,15 @@ public class Contributor {
         this.skills = skills;
     }
 
+    @Override
+    public String toString() {
+        return "Contributor{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", skills=" + skills +
+                '}';
+    }
+
     public Contributor deepCopy() {
         Contributor newContributor = new Contributor();
         newContributor.setId(id);

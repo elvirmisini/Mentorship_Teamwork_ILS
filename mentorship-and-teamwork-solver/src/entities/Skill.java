@@ -40,6 +40,15 @@ public class Skill {
         this.level = level;
     }
 
+    @Override
+    public String toString() {
+        return "Skill{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", level=" + level +
+                '}';
+    }
+
     public Skill deepCopy() {
         Skill newSkill = new Skill();
         newSkill.setId(id);

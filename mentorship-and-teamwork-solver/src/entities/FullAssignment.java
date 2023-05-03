@@ -47,6 +47,15 @@ public class FullAssignment {
         return contributors.stream().map(Contributor::getName).collect(Collectors.toList());
     }
 
+    @Override
+    public String toString() {
+        return "FullAssignment{" +
+                "id=" + id +
+                ", project=" + project +
+                ", contributors=" + contributors +
+                '}';
+    }
+
     public FullAssignment deepCopy() {
         FullAssignment fullAssignment = new FullAssignment();
         fullAssignment.setId(id);

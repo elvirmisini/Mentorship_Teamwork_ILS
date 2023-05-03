@@ -64,6 +64,18 @@ public class Project {
         this.skills = skills;
     }
 
+    @Override
+    public String toString() {
+        return "Project{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", daysToComplete=" + daysToComplete +
+                ", score=" + score +
+                ", bestBefore=" + bestBefore +
+                ", skills=" + skills +
+                '}';
+    }
+
     public Project deepCopy() {
         Project newProject = new Project();
         newProject.setId(id);
