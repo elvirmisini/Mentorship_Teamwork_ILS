@@ -13,7 +13,12 @@ import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
 
-    public static List<FullAssignment> iteratedLocalSearchWithRandomRestarts(List<FullAssignment> initialSolution, int maxMinutes, List<Project> projects, List<Contributor> contributors) {
+    public static List<FullAssignment> iteratedLocalSearchWithRandomRestarts(List<FullAssignment> initialSolution,
+            int maxMinutes, List<Project> projects, List<Contributor> contributors) {
+        List<Contributor> contributorsBeforeILS = contributors.stream().map(Contributor::deepCopy)
+                .collect(Collectors.toList());
+        List<Project> projectsBeforeILS = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
+
         List<FullAssignment> S = new ArrayList<>(initialSolution);
         List<FullAssignment> H = new ArrayList<>(S);
         List<FullAssignment> Best = new ArrayList<>(S);
@@ -45,7 +50,12 @@ public class IteratedLocalSearch {
                 S = PerturbedS;
             }
         }
-        return Best;
+
+        if (Validator.areAssignmentsValid(Best, contributorsBeforeILS, projectsBeforeILS)) {
+            return Best;
+        } else {
+            return initialSolution;
+        }
     }
 
     private static int deltaQuality(List<FullAssignment> oldSolution, List<FullAssignment> newSolution) {
@@ -68,7 +78,8 @@ public class IteratedLocalSearch {
         }
     }
 
-    private static List<FullAssignment> Tweak(List<FullAssignment> CopyS, List<Project> projects, List<Contributor> contributors) {
+    private static List<FullAssignment> Tweak(List<FullAssignment> CopyS, List<Project> projects,
+            List<Contributor> contributors) {
         int operator = (int) (Math.random() * 4);
 
         switch (operator) {
@@ -93,7 +104,8 @@ public class IteratedLocalSearch {
         return CopyS;
     }
 
-    private static List<FullAssignment> InsertProjects(List<FullAssignment> fullAssignments, List<Project> projects, List<Contributor> contributors) {
+    private static List<FullAssignment> InsertProjects(List<FullAssignment> fullAssignments, List<Project> projects,
+            List<Contributor> contributors) {
         List<String> assignedProjectIds = fullAssignments.stream().map(assignment -> {
             if (assignment != null) {
                 if (assignment.getProject() != null) {
@@ -103,7 +115,8 @@ public class IteratedLocalSearch {
             return null;
         }).collect(Collectors.toList());
 
-        List<Project> unassignedProjects = projects.stream().filter(project -> !assignedProjectIds.contains(project.getName())).collect(Collectors.toList());
+        List<Project> unassignedProjects = projects.stream()
+                .filter(project -> !assignedProjectIds.contains(project.getName())).collect(Collectors.toList());
         if (unassignedProjects.size() > 0) {
             List<FullAssignment> additionalFullAssignments = InitialSolver.solve(contributors, unassignedProjects);
             fullAssignments.addAll(additionalFullAssignments);

@@ -20,8 +20,10 @@ public class Main {
         Collections.shuffle(contributors, new Random());
         Collections.shuffle(projects, new Random());
 
-        List<Contributor> firstCopyOfContributors = contributors.stream().map(Contributor::deepCopy).collect(Collectors.toList());
-        List<Contributor> secondCopyOfContributors = contributors.stream().map(Contributor::deepCopy).collect(Collectors.toList());
+        List<Contributor> firstCopyOfContributors = contributors.stream().map(Contributor::deepCopy)
+                .collect(Collectors.toList());
+        List<Contributor> secondCopyOfContributors = contributors.stream().map(Contributor::deepCopy)
+                .collect(Collectors.toList());
         List<Project> firstCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
         List<Project> secondCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
 
@@ -31,12 +33,14 @@ public class Main {
             System.out.println("The solution is valid!");
             System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignments));
 
-            List<FullAssignment> fullAssignmentAfterILS = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(fullAssignments, Integer.parseInt(args[1]), projects, contributors);
+            List<FullAssignment> fullAssignmentAfterILS = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(
+                    fullAssignments, Integer.parseInt(args[1]), projects, contributors);
             System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignmentAfterILS));
             OutputWriter.writeContent(fullAssignmentAfterILS, fileNames.get(1));
 
             List<NameAssignment> nameAssignments = InputReader.readAssignments(fileNames.get(1));
-            if (Validator.areTheFinalAssignmentsValid(nameAssignments, secondCopyOfContributors, secondCopyOfProjects)) {
+            if (Validator.areTheFinalAssignmentsValid(nameAssignments, secondCopyOfContributors,
+                    secondCopyOfProjects)) {
                 System.out.println("The solution is valid!");
             } else {
                 System.out.println("Wrong solution!");

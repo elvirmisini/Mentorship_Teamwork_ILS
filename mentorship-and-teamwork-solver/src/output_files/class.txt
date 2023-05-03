@@ -1,17 +1,15 @@
-8
+7
 Upload
-Dardan Bajram 
-Logging
-Njomza 
+Ilire Dardan 
 Database
 Dardan 
-People
-Njomza 
 Comments
-Njomza 
-WebSockets
-Njomza Bajram 
+Diell 
+People
+Diell 
 WebChat
-Dardan Bajram 
+Ilire Diell 
+WebSockets
+Ilire Diell 
 WebServer
-Njomza Dardan 
+Ilire Diell 

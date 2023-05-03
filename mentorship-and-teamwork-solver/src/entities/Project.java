@@ -1,17 +1,10 @@
 package entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Project {
     private UUID id;
     private String name;
@@ -19,6 +12,57 @@ public class Project {
     private int score;
     private int bestBefore;
     private List<Skill> skills;
+
+    public Project() {
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getDaysToComplete() {
+        return daysToComplete;
+    }
+
+    public void setDaysToComplete(int daysToComplete) {
+        this.daysToComplete = daysToComplete;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getBestBefore() {
+        return bestBefore;
+    }
+
+    public void setBestBefore(int bestBefore) {
+        this.bestBefore = bestBefore;
+    }
+
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
 
     public Project deepCopy() {
         Project newProject = new Project();

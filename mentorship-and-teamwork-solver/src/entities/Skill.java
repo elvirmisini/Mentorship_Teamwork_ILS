@@ -1,18 +1,44 @@
 package entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Skill {
     private UUID id;
     private String name;
     private int level;
+
+    public Skill() {
+    }
+
+    public Skill(UUID id, String name, int level) {
+        this.id = id;
+        this.name = name;
+        this.level = level;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
     public Skill deepCopy() {
         Skill newSkill = new Skill();
