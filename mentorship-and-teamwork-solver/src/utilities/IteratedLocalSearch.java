@@ -8,21 +8,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
 
-    public static List<FullAssignment> iteratedLocalSearchWithRandomRestarts(List<FullAssignment> initialSolution, int maxIteration, List<Project> projects, List<Contributor> contributors) {
+    public static List<FullAssignment> iteratedLocalSearchWithRandomRestarts(List<FullAssignment> initialSolution, int maxMinutes, List<Project> projects, List<Contributor> contributors) {
         List<FullAssignment> S = new ArrayList<>(initialSolution);
         List<FullAssignment> H = new ArrayList<>(S);
         List<FullAssignment> Best = new ArrayList<>(S);
 
-        int i = 0;
-        while (i < maxIteration) {
-            System.out.println("step = " + i);
+        long startTime = System.currentTimeMillis();
+        long maxMillis = TimeUnit.MINUTES.toMillis(maxMinutes);
 
-            int j = 0;
-            while (j < maxIteration) {
+        while (System.currentTimeMillis() - startTime < maxMillis) {
+            int innerIteration = 0;
+            while (System.currentTimeMillis() - startTime < maxMillis && innerIteration < maxMinutes * 60) {
                 List<FullAssignment> R = Tweak(Copy(S), projects, contributors);
                 if (Validator.areAssignmentsValid(R, contributors, projects)) {
                     int delta = deltaQuality(S, R);
@@ -30,12 +31,11 @@ public class IteratedLocalSearch {
                         S = new ArrayList<>(R);
                     }
                 }
-                j++;
+                innerIteration++;
             }
 
             int delta = deltaQuality(Best, S);
             if (delta > 0) {
-                System.out.println("added " + delta);
                 Best = new ArrayList<>(S);
             }
 
@@ -44,7 +44,6 @@ public class IteratedLocalSearch {
             if (Validator.areAssignmentsValid(PerturbedS, contributors, projects)) {
                 S = PerturbedS;
             }
-            i++;
         }
         return Best;
     }

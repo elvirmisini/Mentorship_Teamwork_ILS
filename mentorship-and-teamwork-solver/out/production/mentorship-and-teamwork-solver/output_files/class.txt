@@ -1,17 +1,15 @@
-8
+7
+Upload
+Dardan Ilire 
 Comments
 Diell 
 People
 Diell 
-Logging
-Njomza 
-Upload
-Bajram Dardan 
 WebChat
-Diell Bajram 
+Diell Ilire 
 Database
 Dardan 
 WebSockets
-Diell Bajram 
+Diell Ilire 
 WebServer
-Diell Njomza 
+Diell Ilire 

@@ -12,11 +12,7 @@ import java.util.*;
 
 public class InputReader {
 
-    public static List<String> readFileName() throws Exception {
-        Scanner input = new Scanner(System.in);
-        System.out.print("Choose the file.\na, b, c, d, e, f, class\nYour choice: ");
-        String chosenFile = input.nextLine();
-
+    public static List<String> readFileName(String chosenFile) throws Exception {
         String absoluteInputFilePath = "src\\input_files\\";
         String absoluteOutputFilePath = "src\\output_files\\";
         String fileExtension = ".txt";
