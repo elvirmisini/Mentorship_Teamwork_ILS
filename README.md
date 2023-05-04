@@ -1,7 +1,4 @@
 # Mentorship_Teamwork_ILS
-
-> In this link our target was to find an initial solution (not with Iteratet Local Search) for the problem in this link: [Mentorship and Teamwork](https://codingcompetitions.withgoogle.com/hashcode/round/00000000008caae7/000000000098afc8).
-
 # Phase 3:
 
 
