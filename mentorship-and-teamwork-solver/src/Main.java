@@ -1,8 +1,6 @@
 import entities.Contributor;
-import entities.FullAssignment;
-import entities.NameAssignment;
 import entities.Project;
-import utilities.*;
+import utilities.InputReader;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,33 +25,9 @@ public class Main {
         List<Project> firstCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
         List<Project> secondCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
 
-        List<FullAssignment> fullAssignments = InitialSolver.solve(contributors, projects);
+//        List<FullAssignment> fullAssignments = InitialSolver.solve(contributors, projects);
 
-        while (true) {
-            if (!Validator.areAssignmentsValid(fullAssignments, firstCopyOfContributors, firstCopyOfProjects)) {
-                Collections.shuffle(contributors, new Random());
-                Collections.shuffle(projects, new Random());
-                fullAssignments = InitialSolver.solve(contributors, projects);
-            } else {
-                break;
-            }
-        }
-
-        System.out.println("The solution is valid!");
-        System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignments));
-
-        List<FullAssignment> fullAssignmentAfterILS = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(
-                fullAssignments, Integer.parseInt(args[1]), projects, contributors);
-        System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignmentAfterILS));
-        OutputWriter.writeContent(fullAssignmentAfterILS, fileNames.get(1));
-
-        List<NameAssignment> nameAssignments = InputReader.readAssignments(fileNames.get(1));
-        if (Validator.areTheFinalAssignmentsValid(nameAssignments, secondCopyOfContributors,
-                secondCopyOfProjects)) {
-            System.out.println("The solution is valid!");
-        } else {
-            System.out.println("Wrong solution!");
-        }
-
+//        System.out.println("The solution is valid!");
+//        System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignments));
     }
 }

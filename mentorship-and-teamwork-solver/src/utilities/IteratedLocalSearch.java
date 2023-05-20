@@ -120,8 +120,8 @@ public class IteratedLocalSearch {
         List<Project> unassignedProjects = projects.stream()
                 .filter(project -> !assignedProjectIds.contains(project.getName())).collect(Collectors.toList());
         if (unassignedProjects.size() > 0) {
-            List<FullAssignment> additionalFullAssignments = InitialSolver.solve(contributors, unassignedProjects);
-            fullAssignments.addAll(additionalFullAssignments);
+//            List<FullAssignment> additionalFullAssignments = InitialSolver.solve(contributors, unassignedProjects);
+//            fullAssignments.addAll(additionalFullAssignments);
         }
 
         return fullAssignments;
