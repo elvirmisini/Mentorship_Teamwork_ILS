@@ -36,7 +36,8 @@ public class Main {
         int initialSolutionFitnessScore = FitnessCalculator.getFitnessScore(assignments);
         System.out.println("Initial solution fitness score: " + initialSolutionFitnessScore);
 
-        OutputWriter.writeContent(assignments, fileNames.get(1));
+
+//        OutputWriter.writeContent(assignments, fileNames.get(1));
 
     }
 }
