@@ -4,18 +4,14 @@ import entities.Assignment;
 import entities.Contributor;
 import entities.Project;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
 
-    public static List<Assignment> iteratedLocalSearchWithRandomRestarts(List<Assignment> initialSolution,
-                                                                             int maxMinutes, List<Project> projects, List<Contributor> contributors) {
-        List<Contributor> contributorsBeforeILS = contributors.stream().map(Contributor::deepCopy)
-                .collect(Collectors.toList());
+    public static List<Assignment> iteratedLocalSearchWithRandomRestarts(List<Assignment> initialSolution, int maxMinutes, List<Project> projects, List<Contributor> contributors) {
+        List<Contributor> contributorsBeforeILS = contributors.stream().map(Contributor::deepCopy).collect(Collectors.toList());
         List<Project> projectsBeforeILS = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
         List<Assignment> initialSolutionBeforeILS = initialSolution.stream().map(Assignment::deepCopy).collect(Collectors.toList());
 
@@ -79,15 +75,14 @@ public class IteratedLocalSearch {
         }
     }
 
-    private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects,
-                                              List<Contributor> contributors) {
+    private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects, List<Contributor> contributors) {
 //        int operator = (int) (Math.random() * 4);
 //
 //        switch (operator) {
 //            case 0:
 //                return Swap(CopyS);
 //            case 1:
-//                return InsertProjects(CopyS, projects, contributors);
+                return InsertProjects(CopyS, projects, contributors);
 //            case 2:
 //                return Inversion(CopyS);
 //            case 3:
@@ -95,7 +90,7 @@ public class IteratedLocalSearch {
 //            default:
 //                return CopyS;
 //        }
-        return Swap(CopyS);
+//        return Swap(CopyS);
     }
 
     private static List<Assignment> Swap(List<Assignment> CopyS) {
@@ -106,23 +101,23 @@ public class IteratedLocalSearch {
         return CopyS;
     }
 
-    private static List<Assignment> InsertProjects(List<Assignment> fullAssignments, List<Project> projects,
-                                                       List<Contributor> contributors) {
-        List<String> assignedProjectIds = fullAssignments.stream().map(assignment -> {
-            if (assignment != null) {
-                if (assignment.getProject() != null) {
-                    return assignment.getProject().getName();
-                }
-            }
-            return null;
-        }).collect(Collectors.toList());
+    private static List<Assignment> InsertProjects(List<Assignment> fullAssignments, List<Project> projects, List<Contributor> contributors) {
+        List<String> assignedProjectIds = fullAssignments.stream()
+                .filter(Objects::nonNull)
+                .filter(assignment -> assignment.getProject() != null)
+                .map(assignment -> assignment.getProject().getName())
+                .collect(Collectors.toList());
 
         List<Project> unassignedProjects = projects.stream()
-                .filter(project -> !assignedProjectIds.contains(project.getName())).collect(Collectors.toList());
+                .filter(project -> !assignedProjectIds.contains(project.getName()))
+                .collect(Collectors.toList());
+
         if (unassignedProjects.size() > 0) {
+            System.out.println(unassignedProjects.size());
             List<Assignment> additionalFullAssignments = InitialSolver.solveMentorshipAndTeamwork(unassignedProjects, contributors);
             fullAssignments.addAll(additionalFullAssignments);
         }
+
 
         return fullAssignments;
     }
@@ -162,6 +157,7 @@ public class IteratedLocalSearch {
 //
 //        Collections.shuffle(H.subList(fromIndex, toIndex));
 //        return H;
-        return Swap(H);
+//        return Swap(H);
+        return H;
     }
 }

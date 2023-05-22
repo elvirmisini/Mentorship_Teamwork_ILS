@@ -19,12 +19,8 @@ public class Main {
         Collections.shuffle(contributors, new Random());
         Collections.shuffle(projects, new Random());
 
-        List<Contributor> firstCopyOfContributors = contributors.stream().map(Contributor::deepCopy)
-                .collect(Collectors.toList());
-        List<Contributor> secondCopyOfContributors = contributors.stream().map(Contributor::deepCopy)
-                .collect(Collectors.toList());
+        List<Contributor> firstCopyOfContributors = contributors.stream().map(Contributor::deepCopy).collect(Collectors.toList());
         List<Project> firstCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
-        List<Project> secondCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
 
         List<Assignment> assignments = InitialSolver.solveMentorshipAndTeamwork(projects, contributors);
 
@@ -36,8 +32,17 @@ public class Main {
         int initialSolutionFitnessScore = FitnessCalculator.getFitnessScore(assignments);
         System.out.println("Initial solution fitness score: " + initialSolutionFitnessScore);
 
+        List<Assignment> changed_assignments = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(assignments, 1, projects, contributors);
 
-//        OutputWriter.writeContent(assignments, fileNames.get(1));
+        if (!Validator.areAssignmentsValid(changed_assignments, firstCopyOfContributors, firstCopyOfProjects)) {
+            System.out.println("Wrong initial solution");
+            System.exit(0);
+        }
 
+        initialSolutionFitnessScore = FitnessCalculator.getFitnessScore(changed_assignments);
+        System.out.println("Initial solution fitness score: " + initialSolutionFitnessScore);
+
+
+        OutputWriter.writeContent(changed_assignments, fileNames.get(1));
     }
 }
