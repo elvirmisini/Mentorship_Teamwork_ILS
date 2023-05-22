@@ -23,6 +23,8 @@ and than we wait for the solution, which can be like this
 #### This project was worked on within the framework of the Faculty of Electrical and Computer Engineering, department of Computer Engineering, for "Algorithms Inspired by Nature" course, the problem is from Google Hash Code: [Mentorship and Teamwork](https://codingcompetitions.withgoogle.com/hashcode/round/00000000008caae7/000000000098afc8).
 - Faculty of Electrical and Computer Engineering: https://fiek.uni-pr.edu/
 
+# Phase 4:
+- In this phaze we updated our code a little bit so the solution would be exactly like the results in google hash code.
 #### Development and Develoeprs
 - This project was developet first, python language, lately changed into java programming language, it was build during the 2-nd semester of Master Studies for "Algorithms Inspired by Nature" course, and was mentored by professor of the course Kadri Sylejmani, and the assistant of the course Labeat Arbneshi.
 - This project was developed by two developers(in this case also Students):
