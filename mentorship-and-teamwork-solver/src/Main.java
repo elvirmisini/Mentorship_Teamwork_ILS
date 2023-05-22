@@ -1,6 +1,7 @@
+import entities.Assignment;
 import entities.Contributor;
 import entities.Project;
-import utilities.InputReader;
+import utilities.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,9 +26,17 @@ public class Main {
         List<Project> firstCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
         List<Project> secondCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
 
-//        List<FullAssignment> fullAssignments = InitialSolver.solve(contributors, projects);
+        List<Assignment> assignments = InitialSolver.solveMentorshipAndTeamwork(projects, contributors);
 
-//        System.out.println("The solution is valid!");
-//        System.out.println("Fitness score: " + FitnessCalculator.getFitnessScore(fullAssignments));
+        if (!Validator.areAssignmentsValid(assignments, firstCopyOfContributors, firstCopyOfProjects)) {
+            System.out.println("Wrong initial solution");
+            System.exit(0);
+        }
+
+        int initialSolutionFitnessScore = FitnessCalculator.getFitnessScore(assignments);
+        System.out.println("Initial solution fitness score: " + initialSolutionFitnessScore);
+
+        OutputWriter.writeContent(assignments, fileNames.get(1));
+
     }
 }

@@ -1,9 +1,10 @@
 package utilities;
 
+import entities.Assignment;
 import entities.Contributor;
-import entities.FullAssignment;
 import entities.Project;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +18,11 @@ public class FitnessCalculator {
     and m is the number of contributors in each assignment.
     */
 
-    public static int getFitnessScore(List<FullAssignment> assignments) {
+    public static int getFitnessScore(List<Assignment> assignments) {
         Map<String, Integer> contributorFinalWorkDayMap = getContributorFinalWorkDayMap(assignments);
         int totalScore = 0;
 
-        for (FullAssignment assignment : assignments) {
+        for (Assignment assignment : assignments) {
             int maxFinalWorkDay = updateContributorLastDayToMaxFinalDayAndGetTheMaxFinalDay(assignment, contributorFinalWorkDayMap);
             totalScore += calculateProjectScore(assignment.getProject(), maxFinalWorkDay);
         }
@@ -29,31 +30,31 @@ public class FitnessCalculator {
         return totalScore;
     }
 
-    private static int updateContributorLastDayToMaxFinalDayAndGetTheMaxFinalDay(FullAssignment assignment, Map<String, Integer> contributorFinalWorkDayMap) {
-        for (Contributor contributor : assignment.getContributors()) {
+    private static int updateContributorLastDayToMaxFinalDayAndGetTheMaxFinalDay(Assignment assignment, Map<String, Integer> contributorFinalWorkDayMap) {
+        for (Contributor contributor : assignment.getRoleWithContributorMap().values()) {
             String contributorName = contributor.getName();
             int newFinalWorkDay = contributorFinalWorkDayMap.get(contributorName) + assignment.getProject().getDaysToComplete();
             contributorFinalWorkDayMap.put(contributorName, newFinalWorkDay);
         }
 
         int latestFinalDate = 0;
-        for (Contributor contributor : assignment.getContributors()) {
+        for (Contributor contributor : assignment.getRoleWithContributorMap().values()) {
             int contributorFinalWorkDay = contributorFinalWorkDayMap.get(contributor.getName());
             if (latestFinalDate < contributorFinalWorkDay) {
                 latestFinalDate = contributorFinalWorkDay;
             }
         }
 
-        for (Contributor contributor : assignment.getContributors()) {
+        for (Contributor contributor : assignment.getRoleWithContributorMap().values()) {
             contributorFinalWorkDayMap.put(contributor.getName(), latestFinalDate);
         }
 
         return latestFinalDate;
     }
 
-    private static Map<String, Integer> getContributorFinalWorkDayMap(List<FullAssignment> assignments) {
+    private static Map<String, Integer> getContributorFinalWorkDayMap(List<Assignment> assignments) {
         return assignments.stream()
-                .map(FullAssignment::getContributors)
+                .map(assignment -> new ArrayList<>(assignment.getRoleWithContributorMap().values()))
                 .flatMap(List::stream)
                 .distinct()
                 .collect(Collectors.toMap(
