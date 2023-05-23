@@ -31,8 +31,9 @@ public class Main {
 
         int initialSolutionFitnessScore = FitnessCalculator.getFitnessScore(assignments);
         System.out.println("Initial solution fitness score: " + initialSolutionFitnessScore);
+        System.out.println("Initial assignments: " + assignments.size());
 
-        List<Assignment> changed_assignments = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(assignments, 1, projects, contributors);
+        List<Assignment> changed_assignments = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(assignments, 2, projects, contributors);
 
         if (!Validator.areAssignmentsValid(changed_assignments, firstCopyOfContributors, firstCopyOfProjects)) {
             System.out.println("Wrong initial solution");
@@ -40,8 +41,8 @@ public class Main {
         }
 
         initialSolutionFitnessScore = FitnessCalculator.getFitnessScore(changed_assignments);
-        System.out.println("Initial solution fitness score: " + initialSolutionFitnessScore);
-
+        System.out.println("Final solution fitness score: " + initialSolutionFitnessScore);
+        System.out.println("Final assignments: " + changed_assignments.size());
 
         OutputWriter.writeContent(changed_assignments, fileNames.get(1));
     }

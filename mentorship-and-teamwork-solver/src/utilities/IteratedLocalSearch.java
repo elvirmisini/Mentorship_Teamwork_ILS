@@ -3,6 +3,7 @@ package utilities;
 import entities.Assignment;
 import entities.Contributor;
 import entities.Project;
+import entities.Skill;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -76,20 +77,20 @@ public class IteratedLocalSearch {
     }
 
     private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects, List<Contributor> contributors) {
-//        int operator = (int) (Math.random() * 4);
-//
-//        switch (operator) {
-//            case 0:
-//                return Swap(CopyS);
-//            case 1:
+        int operator = (int) (Math.random() * 2);
+
+        switch (operator) {
+            case 0:
                 return InsertProjects(CopyS, projects, contributors);
+            case 1:
+                return RemoveProject(CopyS, contributors);
 //            case 2:
 //                return Inversion(CopyS);
 //            case 3:
-//                return RemoveProject(CopyS);
-//            default:
-//                return CopyS;
-//        }
+//                return Swap(CopyS);
+            default:
+                return CopyS;
+        }
 //        return Swap(CopyS);
     }
 
@@ -112,8 +113,9 @@ public class IteratedLocalSearch {
                 .filter(project -> !assignedProjectIds.contains(project.getName()))
                 .collect(Collectors.toList());
 
+        Collections.shuffle(unassignedProjects);
+
         if (unassignedProjects.size() > 0) {
-            System.out.println(unassignedProjects.size());
             List<Assignment> additionalFullAssignments = InitialSolver.solveMentorshipAndTeamwork(unassignedProjects, contributors);
             fullAssignments.addAll(additionalFullAssignments);
         }
@@ -137,11 +139,47 @@ public class IteratedLocalSearch {
         return CopyS;
     }
 
-    private static List<Assignment> RemoveProject(List<Assignment> fullAssignments) {
-        Random random = new Random();
-        int fromIndex = random.nextInt(fullAssignments.size());
-        new ArrayList<>(fullAssignments).remove(fromIndex);
+    private static List<Assignment> RemoveProject(List<Assignment> fullAssignments, List<Contributor> contributors) {
+        List<Assignment> removedAssignments = removeLastTenPercent(fullAssignments);
+
+        for (Assignment assignment : removedAssignments) {
+            Project project = assignment.getProject();
+            Map<Integer, entities.Contributor> contributorMap = assignment.getRoleWithContributorMap();
+            for(Integer index : contributorMap.keySet()) {
+                Map<String, Integer> contributorSkillLevel = contributorMap.get(index).getSkills().stream().collect(Collectors.toMap(Skill::getName, Skill::getLevel, (existingValue, newValue) -> existingValue));
+
+                Skill skill = project.getSkills().get(index - 1);
+
+                if(contributorSkillLevel.containsKey(skill.getName())) {
+                    if (skill.getLevel() == contributorSkillLevel.get(skill.getName()) || skill.getLevel() == contributorSkillLevel.get(skill.getName()) - 1) {
+                        for(Contributor contributor : contributors) {
+                            if (Objects.equals(contributor.getName(), contributorMap.get(index).getName())) {
+                                for (Skill contributorSkill : contributor.getSkills()) {
+                                    if (Objects.equals(skill.getName(), contributorSkill.getName())) {
+                                        skill.setLevel(skill.getLevel() - 1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                contributorSkillLevel = new HashMap<>();
+            }
+        }
+
         return fullAssignments;
+    }
+
+    private static <T> List<T> removeLastTenPercent(List<T> list) {
+        int removeCount = (int) Math.ceil(list.size() * 0.2);
+        List<T> removedItems = new ArrayList<>();
+
+        for(int i = 0; i < removeCount; i++) {
+            removedItems.add(list.remove(list.size() - 1));
+        }
+
+        return removedItems;
     }
 
     private static List<Assignment> Perturb(List<Assignment> H) {
@@ -156,8 +194,7 @@ public class IteratedLocalSearch {
 //        }
 //
 //        Collections.shuffle(H.subList(fromIndex, toIndex));
-//        return H;
-//        return Swap(H);
         return H;
+//        return Swap(H);
     }
 }
