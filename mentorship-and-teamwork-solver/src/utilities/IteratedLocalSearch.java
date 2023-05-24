@@ -12,10 +12,15 @@ import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
 
-    public static List<Assignment> iteratedLocalSearchWithRandomRestarts(List<Assignment> initialSolution, int maxMinutes, List<Project> projects, List<Contributor> contributors) {
-        List<Contributor> contributorsBeforeILS = contributors.stream().map(Contributor::deepCopy).collect(Collectors.toList());
+    public static List<Assignment> iteratedLocalSearchWithRandomRestarts(
+            List<Assignment> initialSolution,
+            int maxMinutes, List<Project> projects,
+            List<Contributor> contributors) {
+        List<Contributor> contributorsBeforeILS = contributors.stream().map(Contributor::deepCopy)
+                .collect(Collectors.toList());
         List<Project> projectsBeforeILS = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
-        List<Assignment> initialSolutionBeforeILS = initialSolution.stream().map(Assignment::deepCopy).collect(Collectors.toList());
+        List<Assignment> initialSolutionBeforeILS = initialSolution.stream().map(Assignment::deepCopy)
+                .collect(Collectors.toList());
 
         List<Assignment> S = new ArrayList<>(initialSolution);
         List<Assignment> H = new ArrayList<>(S);
@@ -31,6 +36,7 @@ public class IteratedLocalSearch {
                 if (Validator.areAssignmentsValid(R, contributors, projects)) {
                     int delta = deltaQuality(S, R);
                     if (delta > 0) {
+                        System.out.println("t=" + delta);
                         S = new ArrayList<>(R);
                     }
                 }
@@ -39,6 +45,7 @@ public class IteratedLocalSearch {
 
             int delta = deltaQuality(Best, S);
             if (delta > 0) {
+                System.out.println("p=" + delta);
                 Best = new ArrayList<>(S);
             }
 
@@ -58,6 +65,7 @@ public class IteratedLocalSearch {
     }
 
     private static int deltaQuality(List<Assignment> oldSolution, List<Assignment> newSolution) {
+
         int x = 0;
         for (int i = 0; i < newSolution.size(); i++) {
             if (i < oldSolution.size()) {
@@ -89,7 +97,8 @@ public class IteratedLocalSearch {
         }
     }
 
-    private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects, List<Contributor> contributors) {
+    private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects,
+            List<Contributor> contributors) {
         int operator = (int) (Math.random() * 3);
 
         switch (operator) {
@@ -104,8 +113,8 @@ public class IteratedLocalSearch {
         }
     }
 
-
-    private static List<Assignment> InsertProjects(List<Assignment> fullAssignments, List<Project> projects, List<Contributor> contributors) {
+    private static List<Assignment> InsertProjects(List<Assignment> fullAssignments, List<Project> projects,
+            List<Contributor> contributors) {
         List<String> assignedProjectIds = fullAssignments.stream()
                 .filter(Objects::nonNull)
                 .filter(assignment -> assignment.getProject() != null)
@@ -121,9 +130,13 @@ public class IteratedLocalSearch {
         unassignedProjects.addAll(firstTwentyPercent);
         unassignedProjects.subList(0, twentyPercent).clear();
 
+        if (unassignedProjects.size() > 0) {
+            List<Assignment> additionalFullAssignments = InitialSolver.solveMentorshipAndTeamwork(unassignedProjects,
+                    contributors);
+            fullAssignments.addAll(additionalFullAssignments);
+        }
         return fullAssignments;
     }
-
 
     private static List<Assignment> RemoveProject(List<Assignment> fullAssignments, List<Contributor> contributors) {
         List<Assignment> removedAssignments = removeLastTenPercent(fullAssignments);
@@ -132,12 +145,14 @@ public class IteratedLocalSearch {
             Project project = assignment.getProject();
             Map<Integer, entities.Contributor> contributorMap = assignment.getRoleWithContributorMap();
             for (Integer index : contributorMap.keySet()) {
-                Map<String, Integer> contributorSkillLevel = contributorMap.get(index).getSkills().stream().collect(Collectors.toMap(Skill::getName, Skill::getLevel, (existingValue, newValue) -> existingValue));
+                Map<String, Integer> contributorSkillLevel = contributorMap.get(index).getSkills().stream().collect(
+                        Collectors.toMap(Skill::getName, Skill::getLevel, (existingValue, newValue) -> existingValue));
 
                 Skill skill = project.getSkills().get(index - 1);
 
                 if (contributorSkillLevel.containsKey(skill.getName())) {
-                    if (skill.getLevel() == contributorSkillLevel.get(skill.getName()) || skill.getLevel() == contributorSkillLevel.get(skill.getName()) - 1) {
+                    if (skill.getLevel() == contributorSkillLevel.get(skill.getName())
+                            || skill.getLevel() == contributorSkillLevel.get(skill.getName()) - 1) {
                         for (Contributor contributor : contributors) {
                             if (Objects.equals(contributor.getName(), contributorMap.get(index).getName())) {
                                 for (Skill contributorSkill : contributor.getSkills()) {
@@ -153,22 +168,19 @@ public class IteratedLocalSearch {
                 contributorSkillLevel = new HashMap<>();
             }
         }
-        return removedAssignments;
+
+        return fullAssignments;
     }
 
-    private static List<Assignment> removeLastTenPercent(List<Assignment> CopyS) {
-        int index1 = (int) (Math.random() * CopyS.size());
-        int index2 = (int) (Math.random() * CopyS.size());
+    private static <T> List<T> removeLastTenPercent(List<T> list) {
+        int removeCount = (int) Math.ceil(list.size() * 0.5);
+        List<T> removedItems = new ArrayList<>();
 
-        int start = Math.min(index1, index2);
-        int end = Math.max(index1, index2);
-
-        for (int i = start, j = end; i < j; i++, j--) {
-            Assignment temp = CopyS.get(i);
-            CopyS.set(i, CopyS.get(j));
-            CopyS.set(j, temp);
+        for (int i = 0; i < removeCount; i++) {
+            removedItems.add(list.remove(list.size() - 1));
         }
-        return CopyS;
+
+        return removedItems;
     }
 
     private static List<Assignment> ReplaceContributors(List<Assignment> assignments, List<Contributor> contributors) {
@@ -198,7 +210,8 @@ public class IteratedLocalSearch {
             Assignment assignment = newAssignments.get(i);
             boolean replaced = false;
 
-            for (Map.Entry<Integer, Contributor> entry : new HashMap<>(assignment.getRoleWithContributorMap()).entrySet()) {
+            for (Map.Entry<Integer, Contributor> entry : new HashMap<>(assignment.getRoleWithContributorMap())
+                    .entrySet()) {
                 Contributor contributor = entry.getValue();
 
                 // Check if the contributor is in the provided list
@@ -218,7 +231,8 @@ public class IteratedLocalSearch {
                         }
                     }
                 }
-                if (replaced) break; // Break out of the loop after replacing one contributor
+                if (replaced)
+                    break; // Break out of the loop after replacing one contributor
             }
         }
 
@@ -243,10 +257,10 @@ public class IteratedLocalSearch {
             }
         }
 
-        // If we've made it through all skills without returning false, the unassigned contributor has same or higher skills
+        // If we've made it through all skills without returning false, the unassigned
+        // contributor has same or higher skills
         return true;
     }
-
 
     private static List<Assignment> Perturb(List<Assignment> H) {
         int numSwaps = (int) (H.size() * 0.30);
