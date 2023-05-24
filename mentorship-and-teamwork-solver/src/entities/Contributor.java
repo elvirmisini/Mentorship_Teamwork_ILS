@@ -27,4 +27,16 @@ public class Contributor {
         newContributor.setSkills(copiedSkills);
         return newContributor;
     }
+
+    public double getAverageSkillLevel() {
+        double sumLevels = 0;
+        for(Skill skill : skills) {
+            sumLevels += skill.getLevel();
+        }
+        return (skills.size() > 0) ? sumLevels / skills.size() : 0;
+    }
+
+    public double getCombinedScore() {
+        return 0.6 * getAverageSkillLevel() + 0.4 * skills.size();
+    }
 }

@@ -36,6 +36,7 @@ public class InitialSolver {
             Map<Integer, Contributor> assignedContributorsToProject = new HashMap<>();
             List<UUID> assignedContributorIdsToProject = new ArrayList<>();
 
+            Collections.shuffle(contributors);
 
             List<UUID> addedSkill = new ArrayList<>();
 
@@ -53,15 +54,13 @@ public class InitialSolver {
                                     if (contributorSkillLevel == projectSkill.getLevel()) {
                                         contributorIdAndSkillNameToIncrease.put(contributor.getId(), projectSkill.getName());
                                     }
-                                }
-                                else if (contributorSkillLevel == projectSkill.getLevel() - 1 && hasMentor(projectSkill.getLevel(), projectSkill.getName(), assignedContributorsToProject)) {
+                                } else if (contributorSkillLevel == projectSkill.getLevel() - 1 && hasMentor(projectSkill.getLevel(), projectSkill.getName(), assignedContributorsToProject)) {
                                     addedSkill.add(projectSkill.getId());
                                     assignedContributorsToProject.put(assignedContributorsToProject.size() + 1, contributor);
                                     assignedContributorIdsToProject.add(contributor.getId());
                                     contributorIdAndSkillNameToIncrease.put(contributor.getId(), projectSkill.getName());
                                 }
-                            }
-                            else if (projectSkill.getLevel() == 1 && hasMentor(projectSkill.getLevel(), projectSkill.getName(), assignedContributorsToProject)) {
+                            } else if (projectSkill.getLevel() == 1 && hasMentor(projectSkill.getLevel(), projectSkill.getName(), assignedContributorsToProject)) {
                                 addedSkill.add(projectSkill.getId());
                                 assignedContributorsToProject.put(assignedContributorsToProject.size() + 1, contributor);
                                 assignedContributorIdsToProject.add(contributor.getId());
@@ -87,6 +86,17 @@ public class InitialSolver {
                         if (contributorIdAndSkillNameToAdd.containsKey(contributor.getId())) {
                             contributor.getSkills().add(new Skill(UUID.randomUUID(), contributorIdAndSkillNameToAdd.get(contributor.getId()), 1));
                         }
+                    }
+
+                    Random rand = new Random();
+
+                    // Remove all assigned contributors from the contributors list
+                    contributors.removeAll(assignedContributorsToProject.values());
+
+                    // Add all assigned contributors to random positions in the contributors list
+                    for (Contributor c : assignedContributorsToProject.values()) {
+                        int randomIndex = rand.nextInt(contributors.size() + 1);
+                        contributors.add(randomIndex, c);
                     }
                     break;
                 }

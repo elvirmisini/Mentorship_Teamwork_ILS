@@ -33,4 +33,20 @@ public class Project {
         newProject.setSkills(copiedSkills);
         return newProject;
     }
+
+    public double getPriorityScore() {
+        return (double) score / (bestBefore * daysToComplete);
+    }
+
+    public double getAverageSkillLevel() {
+        int total = 0;
+        for (Skill skill : skills) {
+            total += skill.getLevel();
+        }
+        return (double) total / skills.size();
+    }
+
+    public int getSkillLevels() {
+        return skills.stream().mapToInt(Skill::getLevel).sum();
+    }
 }
