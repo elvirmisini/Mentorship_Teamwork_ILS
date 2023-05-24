@@ -27,4 +27,18 @@ public class Contributor {
         newContributor.setSkills(copiedSkills);
         return newContributor;
     }
+
+    public int getHighestSkillLevel() {
+        int highestLevel = 0;
+        for(Skill skill : skills) {
+            if(skill.getLevel() > highestLevel) {
+                highestLevel = skill.getLevel();
+            }
+        }
+        return highestLevel;
+    }
+
+    public double getCombinedScore() {
+        return 0.5 * getHighestSkillLevel() + 0.5 * skills.size();
+    }
 }

@@ -27,30 +27,32 @@ public class InitialSolver {
             List<UUID> addedSkill = new ArrayList<>();
 
             for (Skill projectSkill : project.getSkills()) {
-                for (Contributor contributor : contributors) {
-                    if (!addedSkill.contains(projectSkill.getId())) {
-                        if (!assignedContributorIdsToProject.contains(contributor.getId())) {
-                            if (contributorIdWithSkillNamesMap.get(contributor.getId()).contains(projectSkill.getName())) {
-                                int contributorSkillLevel = contributorIdAndSkillNameWithLevel.get(contributor.getId()).get(projectSkill.getName());
-                                if (contributorSkillLevel >= projectSkill.getLevel()) {
-                                    addedSkill.add(projectSkill.getId());
-                                    assignedContributorsToProject.put(assignedContributorsToProject.size() + 1, contributor);
-                                    assignedContributorIdsToProject.add(contributor.getId());
+                for(int x = 0; x < 5; x++) {
+                    for (Contributor contributor : contributors) {
+                        if (!addedSkill.contains(projectSkill.getId())) {
+                            if (!assignedContributorIdsToProject.contains(contributor.getId())) {
+                                if (contributorIdWithSkillNamesMap.get(contributor.getId()).contains(projectSkill.getName())) {
+                                    int contributorSkillLevel = contributorIdAndSkillNameWithLevel.get(contributor.getId()).get(projectSkill.getName());
+                                    if (contributorSkillLevel >= projectSkill.getLevel()) {
+                                        addedSkill.add(projectSkill.getId());
+                                        assignedContributorsToProject.put(assignedContributorsToProject.size() + 1, contributor);
+                                        assignedContributorIdsToProject.add(contributor.getId());
 
-                                    if (contributorSkillLevel == projectSkill.getLevel()) {
+                                        if (contributorSkillLevel == projectSkill.getLevel()) {
+                                            contributorIdAndSkillNameToIncrease.put(contributor.getId(), projectSkill.getName());
+                                        }
+                                    } else if (contributorSkillLevel == projectSkill.getLevel() - 1 && hasMentor(projectSkill.getLevel(), projectSkill.getName(), assignedContributorsToProject)) {
+                                        addedSkill.add(projectSkill.getId());
+                                        assignedContributorsToProject.put(assignedContributorsToProject.size() + 1, contributor);
+                                        assignedContributorIdsToProject.add(contributor.getId());
                                         contributorIdAndSkillNameToIncrease.put(contributor.getId(), projectSkill.getName());
                                     }
-                                } else if (contributorSkillLevel == projectSkill.getLevel() - 1 && hasMentor(projectSkill.getLevel(), projectSkill.getName(), assignedContributorsToProject)) {
+                                } else if (projectSkill.getLevel() == 1 && hasMentor(projectSkill.getLevel(), projectSkill.getName(), assignedContributorsToProject)) {
                                     addedSkill.add(projectSkill.getId());
                                     assignedContributorsToProject.put(assignedContributorsToProject.size() + 1, contributor);
                                     assignedContributorIdsToProject.add(contributor.getId());
-                                    contributorIdAndSkillNameToIncrease.put(contributor.getId(), projectSkill.getName());
+                                    contributorIdAndSkillNameToAdd.put(contributor.getId(), projectSkill.getName());
                                 }
-                            } else if (projectSkill.getLevel() == 1 && hasMentor(projectSkill.getLevel(), projectSkill.getName(), assignedContributorsToProject)) {
-                                addedSkill.add(projectSkill.getId());
-                                assignedContributorsToProject.put(assignedContributorsToProject.size() + 1, contributor);
-                                assignedContributorIdsToProject.add(contributor.getId());
-                                contributorIdAndSkillNameToAdd.put(contributor.getId(), projectSkill.getName());
                             }
                         }
                     }

@@ -11,7 +11,11 @@ import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
 
-    public static List<Assignment> iteratedLocalSearchWithRandomRestarts(List<Assignment> initialSolution, int maxMinutes, List<Project> projects, List<Contributor> contributors) {
+    public static List<Assignment> iteratedLocalSearchWithRandomRestarts(
+            List<Assignment> initialSolution,
+            int maxMinutes, List<Project> projects,
+            List<Contributor> contributors
+    ) {
         List<Contributor> contributorsBeforeILS = contributors.stream().map(Contributor::deepCopy).collect(Collectors.toList());
         List<Project> projectsBeforeILS = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
         List<Assignment> initialSolutionBeforeILS = initialSolution.stream().map(Assignment::deepCopy).collect(Collectors.toList());
@@ -85,22 +89,12 @@ public class IteratedLocalSearch {
             case 1:
                 return RemoveProject(CopyS, contributors);
 //            case 2:
-//                return Inversion(CopyS);
-//            case 3:
-//                return Swap(CopyS);
+//                return ReplaceContributors(CopyS, contributors);
             default:
                 return CopyS;
         }
-//        return Swap(CopyS);
     }
 
-    private static List<Assignment> Swap(List<Assignment> CopyS) {
-        int index = (int) (Math.random() * (CopyS.size() - 1));
-        Assignment temp = CopyS.get(index);
-        CopyS.set(index, CopyS.get(index + 1));
-        CopyS.set(index + 1, temp);
-        return CopyS;
-    }
 
     private static List<Assignment> InsertProjects(List<Assignment> fullAssignments, List<Project> projects, List<Contributor> contributors) {
         List<String> assignedProjectIds = fullAssignments.stream()
@@ -113,30 +107,23 @@ public class IteratedLocalSearch {
                 .filter(project -> !assignedProjectIds.contains(project.getName()))
                 .collect(Collectors.toList());
 
-        Collections.shuffle(unassignedProjects);
+        int twentyPercent = (int) (0.1 * unassignedProjects.size());
+
+        // Get first 20% of the list
+        List<Project> firstTwentyPercent = new ArrayList<>(unassignedProjects.subList(0, twentyPercent));
+
+        // Add them to the end of the list
+        unassignedProjects.addAll(firstTwentyPercent);
+
+        // Remove them from the beginning of the list
+        unassignedProjects.subList(0, twentyPercent).clear();
 
         if (unassignedProjects.size() > 0) {
             List<Assignment> additionalFullAssignments = InitialSolver.solveMentorshipAndTeamwork(unassignedProjects, contributors);
             fullAssignments.addAll(additionalFullAssignments);
         }
 
-
         return fullAssignments;
-    }
-
-    private static List<Assignment> Inversion(List<Assignment> CopyS) {
-        int index1 = (int) (Math.random() * CopyS.size());
-        int index2 = (int) (Math.random() * CopyS.size());
-
-        int start = Math.min(index1, index2);
-        int end = Math.max(index1, index2);
-
-        for (int i = start, j = end; i < j; i++, j--) {
-            Assignment temp = CopyS.get(i);
-            CopyS.set(i, CopyS.get(j));
-            CopyS.set(j, temp);
-        }
-        return CopyS;
     }
 
     private static List<Assignment> RemoveProject(List<Assignment> fullAssignments, List<Contributor> contributors) {
@@ -145,14 +132,14 @@ public class IteratedLocalSearch {
         for (Assignment assignment : removedAssignments) {
             Project project = assignment.getProject();
             Map<Integer, entities.Contributor> contributorMap = assignment.getRoleWithContributorMap();
-            for(Integer index : contributorMap.keySet()) {
+            for (Integer index : contributorMap.keySet()) {
                 Map<String, Integer> contributorSkillLevel = contributorMap.get(index).getSkills().stream().collect(Collectors.toMap(Skill::getName, Skill::getLevel, (existingValue, newValue) -> existingValue));
 
                 Skill skill = project.getSkills().get(index - 1);
 
-                if(contributorSkillLevel.containsKey(skill.getName())) {
+                if (contributorSkillLevel.containsKey(skill.getName())) {
                     if (skill.getLevel() == contributorSkillLevel.get(skill.getName()) || skill.getLevel() == contributorSkillLevel.get(skill.getName()) - 1) {
-                        for(Contributor contributor : contributors) {
+                        for (Contributor contributor : contributors) {
                             if (Objects.equals(contributor.getName(), contributorMap.get(index).getName())) {
                                 for (Skill contributorSkill : contributor.getSkills()) {
                                     if (Objects.equals(skill.getName(), contributorSkill.getName())) {
@@ -172,29 +159,35 @@ public class IteratedLocalSearch {
     }
 
     private static <T> List<T> removeLastTenPercent(List<T> list) {
-        int removeCount = (int) Math.ceil(list.size() * 0.2);
+        int removeCount = (int) Math.ceil(list.size() * 0.1);
         List<T> removedItems = new ArrayList<>();
 
-        for(int i = 0; i < removeCount; i++) {
+        for (int i = 0; i < removeCount; i++) {
             removedItems.add(list.remove(list.size() - 1));
         }
 
         return removedItems;
     }
 
+    private static List<Assignment> ReplaceContributors(List<Assignment> assignments, List<Contributor> contributors) {
+        List<Contributor> assignedContributorIds = assignments.stream()
+                .map(assignment -> assignment.getRoleWithContributorMap().values())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        List<Contributor> unassignedContributors = contributors.stream()
+                .filter(contributor -> !assignedContributorIds.stream().map(Contributor::getId).collect(Collectors.toList()).contains(contributor.getId()))
+                .collect(Collectors.toList());
+
+        if(unassignedContributors.size() > 0) {
+            unassignedContributors.sort((c1, c2) -> Double.compare(c2.getCombinedScore(), c1.getCombinedScore()));
+
+        }
+
+        return assignments;
+    }
+
     private static List<Assignment> Perturb(List<Assignment> H) {
-//        Random random = new Random();
-//        int fromIndex = random.nextInt(H.size());
-//        int toIndex = random.nextInt(H.size());
-//
-//        if (fromIndex > toIndex) {
-//            int temp = fromIndex;
-//            fromIndex = toIndex;
-//            toIndex = temp;
-//        }
-//
-//        Collections.shuffle(H.subList(fromIndex, toIndex));
         return H;
-//        return Swap(H);
     }
 }
