@@ -45,4 +45,8 @@ public class Project {
         }
         return (double) total / skills.size();
     }
+
+    public int getSkillLevels() {
+        return skills.stream().mapToInt(Skill::getLevel).sum();
+    }
 }

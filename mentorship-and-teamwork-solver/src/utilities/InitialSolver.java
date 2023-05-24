@@ -63,6 +63,16 @@ public class InitialSolver {
                     assignment.setProject(project);
                     assignment.setRoleWithContributorMap(assignedContributorsToProject);
                     updateAssignedContributorsSkillLevel(contributors);
+
+                    contributors.removeAll(assignedContributorsToProject.values());
+                    contributors.addAll(assignedContributorsToProject.values());
+
+//                    // Adding the elements from list2 to the random positions in the second half of list1
+//                    Random random = new Random();
+//                    for (Contributor element : assignedContributorsToProject.values()) {
+//                        int randomIndex = contributors.size() / 2 + random.nextInt((contributors.size() / 2) + 1);
+//                        contributors.add(randomIndex, element);
+//                    }
                     break;
                 }
 

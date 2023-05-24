@@ -81,14 +81,16 @@ public class IteratedLocalSearch {
     }
 
     private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects, List<Contributor> contributors) {
-        int operator = (int) (Math.random() * 2);
+        int operator = (int) (Math.random() * 3);
 
         switch (operator) {
             case 0:
                 return InsertProjects(CopyS, projects, contributors);
             case 1:
                 return RemoveProject(CopyS, contributors);
-//            case 2:
+            case 2:
+                return SwapAssignments(CopyS);
+//            case 3:
 //                return ReplaceContributors(CopyS, contributors);
             default:
                 return CopyS;
@@ -185,6 +187,27 @@ public class IteratedLocalSearch {
         }
 
         return assignments;
+    }
+
+    private static List<Assignment> SwapAssignments(List<Assignment> H) {
+        // Calculate 10% of list size
+        int numSwaps = (int)(H.size() * 0.10);  // This rounds down
+
+        // Create a random number generator
+        Random rand = new Random();
+
+        // Perform the swaps
+        for (int i = 0; i < numSwaps; i++) {
+            // Generate a random index between 0 and list size - 2
+            // We subtract 2 to avoid ArrayIndexOutOfBoundsException as we swap element with its next one
+            int index = rand.nextInt(H.size() - 1);
+
+            // Swap the element with its neighbor
+            Assignment temp = H.get(index);
+            H.set(index, H.get(index + 1));
+            H.set(index + 1, temp);
+        }
+        return H;
     }
 
     private static List<Assignment> Perturb(List<Assignment> H) {

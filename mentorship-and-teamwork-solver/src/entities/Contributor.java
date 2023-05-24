@@ -37,8 +37,20 @@ public class Contributor {
         }
         return highestLevel;
     }
+//
+//    public double getCombinedScore() {
+//        return 0.5 * getHighestSkillLevel() + 0.5 * skills.size();
+//    }
+
+    public double getAverageSkillLevel() {
+        double sumLevels = 0;
+        for(Skill skill : skills) {
+            sumLevels += skill.getLevel();
+        }
+        return (skills.size() > 0) ? sumLevels / skills.size() : 0;
+    }
 
     public double getCombinedScore() {
-        return 0.5 * getHighestSkillLevel() + 0.5 * skills.size();
+        return 0.6 * getAverageSkillLevel() + 0.4 * skills.size();
     }
 }

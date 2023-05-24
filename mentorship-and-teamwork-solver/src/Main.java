@@ -3,6 +3,7 @@ import entities.Contributor;
 import entities.Project;
 import utilities.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,16 +15,30 @@ public class Main {
         List<Contributor> contributors = InputReader.readContributors(fileContents);
         List<Project> projects = InputReader.readProjects(fileContents);
 
+        /** This sort is used for c, e, f **/
         // Sort the contributors by their highest skill level, in descending order
         contributors.sort((c1, c2) -> Double.compare(c2.getCombinedScore(), c1.getCombinedScore()));
-        // Sort the projects by combined score, in descending order
-        projects.sort((p1, p2) -> {
-            int result = Double.compare(p2.getPriorityScore(), p1.getPriorityScore());
-            if (result == 0) { // if priority scores are equal, compare average skill levels
-                result = Double.compare(p2.getAverageSkillLevel(), p1.getAverageSkillLevel());
-            }
-            return result;
-        });
+
+        /** This sort is used for the c instance (collaborations) - it gives the score: 116985
+         // Sort the projects by score (desc) and bestBefore (asc)
+         projects.sort((p1, p2) -> {
+         // Compare by score
+         int scoreComparison = Integer.compare(p2.getScore(), p1.getScore());
+         if (scoreComparison != 0) {
+         return scoreComparison;
+         }
+         // Scores are equal, compare by bestBefore
+         return Integer.compare(p1.getBestBefore(), p2.getBestBefore());
+         });
+         **/
+
+        /** This sort is used for the e instance (exceptional skills) - it gives the score: 1551509  **/
+//         projects.sort((p1, p2) -> Double.compare(p2.getPriorityScore(), p1.getPriorityScore()));
+
+
+        /** This sort is used for the f instance (great mentors) - it gives the score: 176150 **/
+        projects.sort(Comparator.comparing(Project::getSkillLevels));
+
 
         List<Contributor> firstCopyOfContributors = contributors.stream().map(Contributor::deepCopy).collect(Collectors.toList());
         List<Project> firstCopyOfProjects = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
@@ -39,7 +54,7 @@ public class Main {
         System.out.println("Initial solution fitness score: " + initialSolutionFitnessScore);
         System.out.println("Initial assignments: " + assignments.size());
 
-        List<Assignment> changed_assignments = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(assignments, 1, projects, contributors);
+        List<Assignment> changed_assignments = IteratedLocalSearch.iteratedLocalSearchWithRandomRestarts(assignments, Integer.parseInt(args[1]), projects, contributors);
 
         if (!Validator.areAssignmentsValid(changed_assignments, firstCopyOfContributors, firstCopyOfProjects)) {
             System.out.println("Wrong initial solution");
