@@ -1,28 +1,30 @@
 package utilities;
 
+import entities.Assignment;
 import entities.Contributor;
-import entities.FullAssignment;
 import entities.Project;
+import entities.Skill;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
 
-    public static List<FullAssignment> iteratedLocalSearchWithRandomRestarts(List<FullAssignment> initialSolution,
-                                                                             int maxMinutes, List<Project> projects, List<Contributor> contributors) {
+    public static List<Assignment> iteratedLocalSearchWithRandomRestarts(
+            List<Assignment> initialSolution,
+            int maxMinutes, List<Project> projects,
+            List<Contributor> contributors) {
         List<Contributor> contributorsBeforeILS = contributors.stream().map(Contributor::deepCopy)
                 .collect(Collectors.toList());
         List<Project> projectsBeforeILS = projects.stream().map(Project::deepCopy).collect(Collectors.toList());
-        List<FullAssignment> initialSolutionBeforeILS = initialSolution.stream().map(FullAssignment::deepCopy).collect(Collectors.toList());
+        List<Assignment> initialSolutionBeforeILS = initialSolution.stream().map(Assignment::deepCopy)
+                .collect(Collectors.toList());
 
-        List<FullAssignment> S = new ArrayList<>(initialSolution);
-        List<FullAssignment> H = new ArrayList<>(S);
-        List<FullAssignment> Best = new ArrayList<>(S);
+        List<Assignment> S = new ArrayList<>(initialSolution);
+        List<Assignment> H = new ArrayList<>(S);
+        List<Assignment> Best = new ArrayList<>(S);
 
         long startTime = System.currentTimeMillis();
         long maxMillis = TimeUnit.MINUTES.toMillis(maxMinutes);
@@ -30,10 +32,11 @@ public class IteratedLocalSearch {
         while (System.currentTimeMillis() - startTime < maxMillis) {
             int innerIteration = 0;
             while (System.currentTimeMillis() - startTime < maxMillis && innerIteration < maxMinutes * 60) {
-                List<FullAssignment> R = Tweak(Copy(S), projects, contributors);
+                List<Assignment> R = Tweak(Copy(S), projects, contributors);
                 if (Validator.areAssignmentsValid(R, contributors, projects)) {
                     int delta = deltaQuality(S, R);
                     if (delta > 0) {
+                        System.out.println("t=" + delta);
                         S = new ArrayList<>(R);
                     }
                 }
@@ -42,11 +45,12 @@ public class IteratedLocalSearch {
 
             int delta = deltaQuality(Best, S);
             if (delta > 0) {
+                System.out.println("p=" + delta);
                 Best = new ArrayList<>(S);
             }
 
             H = NewHomeBase(H, S);
-            List<FullAssignment> PerturbedS = Perturb(H);
+            List<Assignment> PerturbedS = Perturb(H);
             if (Validator.areAssignmentsValid(PerturbedS, contributors, projects)) {
                 S = PerturbedS;
             }
@@ -60,19 +64,32 @@ public class IteratedLocalSearch {
         }
     }
 
-    private static int deltaQuality(List<FullAssignment> oldSolution, List<FullAssignment> newSolution) {
-        return Quality(newSolution) - Quality(oldSolution);
+    private static int deltaQuality(List<Assignment> oldSolution, List<Assignment> newSolution) {
+
+        int x = 0;
+        for (int i = 0; i < newSolution.size(); i++) {
+            if (i < oldSolution.size()) {
+                if (!oldSolution.get(i).equals(newSolution.get(i))) {
+                    x = i;
+                    break;
+                }
+            }
+
+        }
+        List<Assignment> changedAssignments = new ArrayList<>(newSolution.subList(x, newSolution.size()));
+
+        return Quality(changedAssignments) - Quality(oldSolution.subList(x, oldSolution.size()));
     }
 
-    private static List<FullAssignment> Copy(List<FullAssignment> S) {
+    private static List<Assignment> Copy(List<Assignment> S) {
         return new ArrayList<>(S);
     }
 
-    private static int Quality(List<FullAssignment> R) {
+    private static int Quality(List<Assignment> R) {
         return FitnessCalculator.getFitnessScore(R);
     }
 
-    private static List<FullAssignment> NewHomeBase(List<FullAssignment> H, List<FullAssignment> S) {
+    private static List<Assignment> NewHomeBase(List<Assignment> H, List<Assignment> S) {
         if (Quality(S) >= Quality(H)) {
             return new ArrayList<>(S);
         } else {
@@ -80,87 +97,180 @@ public class IteratedLocalSearch {
         }
     }
 
-    private static List<FullAssignment> Tweak(List<FullAssignment> CopyS, List<Project> projects,
-                                              List<Contributor> contributors) {
-        int operator = (int) (Math.random() * 4);
+    private static List<Assignment> Tweak(List<Assignment> CopyS, List<Project> projects,
+            List<Contributor> contributors) {
+        int operator = (int) (Math.random() * 3);
 
         switch (operator) {
             case 0:
-                return Swap(CopyS);
-            case 1:
                 return InsertProjects(CopyS, projects, contributors);
+            case 1:
+                return RemoveProject(CopyS, contributors);
             case 2:
-                return Inversion(CopyS);
-            case 3:
-                return RemoveProject(CopyS);
+                return ReplaceContributors(CopyS, contributors);
             default:
                 return CopyS;
         }
     }
 
-    private static List<FullAssignment> Swap(List<FullAssignment> CopyS) {
-        int index = (int) (Math.random() * (CopyS.size() - 1));
-        FullAssignment temp = CopyS.get(index);
-        CopyS.set(index, CopyS.get(index + 1));
-        CopyS.set(index + 1, temp);
-        return CopyS;
-    }
-
-    private static List<FullAssignment> InsertProjects(List<FullAssignment> fullAssignments, List<Project> projects,
-                                                       List<Contributor> contributors) {
-        List<String> assignedProjectIds = fullAssignments.stream().map(assignment -> {
-            if (assignment != null) {
-                if (assignment.getProject() != null) {
-                    return assignment.getProject().getName();
-                }
-            }
-            return null;
-        }).collect(Collectors.toList());
+    private static List<Assignment> InsertProjects(List<Assignment> fullAssignments, List<Project> projects,
+            List<Contributor> contributors) {
+        List<String> assignedProjectIds = fullAssignments.stream()
+                .filter(Objects::nonNull)
+                .filter(assignment -> assignment.getProject() != null)
+                .map(assignment -> assignment.getProject().getName())
+                .collect(Collectors.toList());
 
         List<Project> unassignedProjects = projects.stream()
-                .filter(project -> !assignedProjectIds.contains(project.getName())).collect(Collectors.toList());
+                .filter(project -> !assignedProjectIds.contains(project.getName()))
+                .collect(Collectors.toList());
+
+        int twentyPercent = (int) (0.5 * unassignedProjects.size());
+        List<Project> firstTwentyPercent = new ArrayList<>(unassignedProjects.subList(0, twentyPercent));
+        unassignedProjects.addAll(firstTwentyPercent);
+        unassignedProjects.subList(0, twentyPercent).clear();
+
         if (unassignedProjects.size() > 0) {
-            List<FullAssignment> additionalFullAssignments = InitialSolver.solve(contributors, unassignedProjects);
+            List<Assignment> additionalFullAssignments = InitialSolver.solveMentorshipAndTeamwork(unassignedProjects,
+                    contributors);
             fullAssignments.addAll(additionalFullAssignments);
         }
+        return fullAssignments;
+    }
+
+    private static List<Assignment> RemoveProject(List<Assignment> fullAssignments, List<Contributor> contributors) {
+        List<Assignment> removedAssignments = removeLastTenPercent(fullAssignments);
+
+        for (Assignment assignment : removedAssignments) {
+            Project project = assignment.getProject();
+            Map<Integer, entities.Contributor> contributorMap = assignment.getRoleWithContributorMap();
+            for (Integer index : contributorMap.keySet()) {
+                Map<String, Integer> contributorSkillLevel = contributorMap.get(index).getSkills().stream().collect(
+                        Collectors.toMap(Skill::getName, Skill::getLevel, (existingValue, newValue) -> existingValue));
+
+                Skill skill = project.getSkills().get(index - 1);
+
+                if (contributorSkillLevel.containsKey(skill.getName())) {
+                    if (skill.getLevel() == contributorSkillLevel.get(skill.getName())
+                            || skill.getLevel() == contributorSkillLevel.get(skill.getName()) - 1) {
+                        for (Contributor contributor : contributors) {
+                            if (Objects.equals(contributor.getName(), contributorMap.get(index).getName())) {
+                                for (Skill contributorSkill : contributor.getSkills()) {
+                                    if (Objects.equals(skill.getName(), contributorSkill.getName())) {
+                                        skill.setLevel(skill.getLevel() - 1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                contributorSkillLevel = new HashMap<>();
+            }
+        }
 
         return fullAssignments;
     }
 
-    private static List<FullAssignment> Inversion(List<FullAssignment> CopyS) {
-        int index1 = (int) (Math.random() * CopyS.size());
-        int index2 = (int) (Math.random() * CopyS.size());
+    private static <T> List<T> removeLastTenPercent(List<T> list) {
+        int removeCount = (int) Math.ceil(list.size() * 0.5);
+        List<T> removedItems = new ArrayList<>();
 
-        int start = Math.min(index1, index2);
-        int end = Math.max(index1, index2);
-
-        for (int i = start, j = end; i < j; i++, j--) {
-            FullAssignment temp = CopyS.get(i);
-            CopyS.set(i, CopyS.get(j));
-            CopyS.set(j, temp);
-        }
-        return CopyS;
-    }
-
-    private static List<FullAssignment> RemoveProject(List<FullAssignment> fullAssignments) {
-        Random random = new Random();
-        int fromIndex = random.nextInt(fullAssignments.size());
-        new ArrayList<>(fullAssignments).remove(fromIndex);
-        return fullAssignments;
-    }
-
-    private static List<FullAssignment> Perturb(List<FullAssignment> H) {
-        Random random = new Random();
-        int fromIndex = random.nextInt(H.size());
-        int toIndex = random.nextInt(H.size());
-
-        if (fromIndex > toIndex) {
-            int temp = fromIndex;
-            fromIndex = toIndex;
-            toIndex = temp;
+        for (int i = 0; i < removeCount; i++) {
+            removedItems.add(list.remove(list.size() - 1));
         }
 
-        Collections.shuffle(H.subList(fromIndex, toIndex));
+        return removedItems;
+    }
+
+    private static List<Assignment> ReplaceContributors(List<Assignment> assignments, List<Contributor> contributors) {
+        // Retrieve all contributors from the assignments
+        Set<UUID> assignedContributorIds = assignments.stream()
+                .flatMap(a -> a.getRoleWithContributorMap().values().stream())
+                .map(Contributor::getId)
+                .collect(Collectors.toSet());
+
+        // Retrieve all contributors from the provided list
+        Set<UUID> contributorIds = contributors.stream()
+                .map(Contributor::getId)
+                .collect(Collectors.toSet());
+
+        // Find out the unassigned contributors
+        List<Contributor> unassignedContributors = contributors.stream()
+                .filter(c -> !assignedContributorIds.contains(c.getId()))
+                .collect(Collectors.toList());
+
+        // Determine the first 20% of the assignments
+        int limit = (int) (assignments.size() * 0.5);
+
+        // Create a copy of the assignments
+        List<Assignment> newAssignments = new ArrayList<>(assignments);
+
+        for (int i = 0; i < limit; i++) {
+            Assignment assignment = newAssignments.get(i);
+            boolean replaced = false;
+
+            for (Map.Entry<Integer, Contributor> entry : new HashMap<>(assignment.getRoleWithContributorMap())
+                    .entrySet()) {
+                Contributor contributor = entry.getValue();
+
+                // Check if the contributor is in the provided list
+                if (!contributorIds.contains(contributor.getId())) {
+                    // Search for a replacement in the unassigned contributors
+                    for (Contributor unassignedContributor : unassignedContributors) {
+                        if (hasSameOrHigherSkills(contributor, unassignedContributor)) {
+                            // Replace the contributor in the assignment
+                            assignment.getRoleWithContributorMap().put(entry.getKey(), unassignedContributor);
+
+                            // Remove the unassigned contributor as it's now assigned
+                            unassignedContributors.remove(unassignedContributor);
+
+                            // A replacement has been made
+                            replaced = true;
+                            break;
+                        }
+                    }
+                }
+                if (replaced)
+                    break; // Break out of the loop after replacing one contributor
+            }
+        }
+
+        return newAssignments;
+    }
+
+    private static boolean hasSameOrHigherSkills(Contributor contributor, Contributor unassignedContributor) {
+        // Create a map for easy lookup of skills by name for the contributor
+        Map<String, Skill> contributorSkillsMap = contributor.getSkills().stream()
+                .collect(Collectors.toMap(Skill::getName, Function.identity()));
+
+        // Iterate through each skill of the unassigned contributor
+        for (Skill skill : unassignedContributor.getSkills()) {
+            // If the contributor doesn't have the skill, return false
+            if (!contributorSkillsMap.containsKey(skill.getName())) {
+                return false;
+            }
+
+            // If the contributor has the skill but at a lower level, return false
+            if (contributorSkillsMap.get(skill.getName()).getLevel() > skill.getLevel()) {
+                return false;
+            }
+        }
+
+        // If we've made it through all skills without returning false, the unassigned
+        // contributor has same or higher skills
+        return true;
+    }
+
+    private static List<Assignment> Perturb(List<Assignment> H) {
+        int numSwaps = (int) (H.size() * 0.30);
+        Random rand = new Random();
+        for (int i = 0; i < numSwaps; i++) {
+            int index = rand.nextInt(H.size() - 1);
+            Assignment temp = H.get(index);
+            H.set(index, H.get(index + 1));
+            H.set(index + 1, temp);
+        }
         return H;
     }
 }

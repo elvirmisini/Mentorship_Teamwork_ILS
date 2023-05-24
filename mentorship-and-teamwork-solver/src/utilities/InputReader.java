@@ -13,8 +13,8 @@ import java.util.*;
 public class InputReader {
 
     public static List<String> readFileName(String chosenFile) throws Exception {
-        String absoluteInputFilePath = "src\\input_files\\";
-        String absoluteOutputFilePath = "src\\output_files\\";
+        String absoluteInputFilePath = "C:\\Users\\uran_\\Desktop\\Algoritmet e Inspiruara nga Natyra\\Mentorship_Teamwork_ILS\\mentorship-and-teamwork-solver\\src\\input_files\\";
+        String absoluteOutputFilePath = "C:\\Users\\uran_\\Desktop\\Algoritmet e Inspiruara nga Natyra\\Mentorship_Teamwork_ILS\\mentorship-and-teamwork-solver\\src\\output_files\\";
         String fileExtension = ".txt";
 
         switch (chosenFile) {
