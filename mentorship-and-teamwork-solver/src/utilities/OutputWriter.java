@@ -24,6 +24,6 @@ public class OutputWriter {
         }
         writer.close();
 
-        System.out.println("Wrote assignments\n");
+        System.out.println("\nWrote the solution in the file " + fileName);
     }
 }

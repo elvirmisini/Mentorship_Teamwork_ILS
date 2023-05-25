@@ -12,12 +12,6 @@ import java.util.stream.Collectors;
 
 public class FitnessCalculator {
 
-    /*
-    The fitness score has the time complexity O(n*m),
-    where n is the number of assignments
-    and m is the number of contributors in each assignment.
-    */
-
     public static int getFitnessScore(List<Assignment> assignments) {
         Map<String, Integer> contributorFinalWorkDayMap = getContributorFinalWorkDayMap(assignments);
         int totalScore = 0;

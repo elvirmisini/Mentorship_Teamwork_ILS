@@ -12,14 +12,14 @@ import java.util.stream.Collectors;
 public class Validator {
 
     public static boolean areAssignmentsValid(List<Assignment> assignments, List<Contributor> contributors, List<Project> projects) {
-        Map<String, Project> projectMapByName = projects.stream().collect(Collectors.toMap(Project::getName, project -> project));
+        Map<String, Project> projectNamesMap = projects.stream().collect(Collectors.toMap(Project::getName, project -> project));
         List<String> contributorNames = contributors.stream().map(Contributor::getName).collect(Collectors.toList());
 
         for (Assignment assignment : assignments) {
             String assignedProject = assignment.getProject().getName();
             List<String> assignedContributors = assignment.getRoleWithContributorMap().values().stream().map(Contributor::getName).collect(Collectors.toList());
 
-            if (!projectMapByName.containsKey(assignedProject)) {
+            if (!projectNamesMap.containsKey(assignedProject)) {
                 System.out.println("Error. Assigned project " + assignedProject + " does not exist!");
                 return false;
             }
@@ -39,7 +39,7 @@ public class Validator {
                 return false;
             }
 
-            if (assignment.getRoleWithContributorMap().size() != projectMapByName.get(assignedProject).getSkills().size()) {
+            if (assignment.getRoleWithContributorMap().size() != projectNamesMap.get(assignedProject).getSkills().size()) {
                 System.out.println("Error. Project " + assignment.getProject() + " has wrong number of contributors!");
                 return false;
             }
