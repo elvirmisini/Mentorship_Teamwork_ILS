@@ -18,13 +18,14 @@ java Main b 5
 ```
 and than we wait for the solution, which can be like this
 
-![image](https://user-images.githubusercontent.com/58117020/236141686-9677b9e5-5a73-419c-901d-ead32f2afe27.png)
+![image](https://github.com/elvirmisini/Mentorship_Teamwork_ILS/assets/58117020/d3b2bcb8-27f2-4818-ba91-55e60d8ebf7b)
 
 #### This project was worked on within the framework of the Faculty of Electrical and Computer Engineering, department of Computer Engineering, for "Algorithms Inspired by Nature" course, the problem is from Google Hash Code: [Mentorship and Teamwork](https://codingcompetitions.withgoogle.com/hashcode/round/00000000008caae7/000000000098afc8).
 - Faculty of Electrical and Computer Engineering: https://fiek.uni-pr.edu/
 
 # Phase 4:
 - In this phaze we updated our code a little bit so the solution would be exactly like the results in google hash code.
+- We also made a document that shows our work, and result, and you can find in this repo.
 #### Development and Develoeprs
 - This project was developet first, python language, lately changed into java programming language, it was build during the 2-nd semester of Master Studies for "Algorithms Inspired by Nature" course, and was mentored by professor of the course Kadri Sylejmani, and the assistant of the course Labeat Arbneshi.
 - This project was developed by two developers(in this case also Students):
