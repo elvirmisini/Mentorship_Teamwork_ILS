@@ -56,7 +56,7 @@ public class InitialSolver {
 
     private static void introduceRandomnessToTheSolution(List<Project> projects, List<Contributor> contributors) {
         Collections.shuffle(contributors, new Random());
-        Collections.shuffle(projects, new Random());
+        projects.sort((b1, b2) -> Integer.compare(-b2.getBestBefore(), -b1.getBestBefore()));
     }
 
 

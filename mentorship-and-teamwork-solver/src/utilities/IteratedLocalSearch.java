@@ -3,19 +3,17 @@ package utilities;
 import entities.Assignment;
 import entities.Contributor;
 import entities.Project;
-import entities.Skill;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class IteratedLocalSearch {
 
     private static final int SECONDS_IN_MINUTE = 60;
     private static final double PERTURB_PERCENTAGE = 0.3;
-    private static final double PERCENTAGE_OF_ASSIGNMENTS_TO_REPLACE_CONTRIBUTORS = 0.3;
-    private static final double PERCENTAGE_OF_PROJECTS_TO_BE_REMOVED = 0.3;
 
 
     public static List<Assignment> performSearch(List<Assignment> initialSolution, int maxMinutes, List<Project> projects, List<Contributor> contributors) {
@@ -55,9 +53,9 @@ public class IteratedLocalSearch {
             case 0:
                 return insertProjects(assignments, projects, contributors);
             case 1:
-                return removeProject(assignments, contributors);
+                return operatorOne(assignments, projects, contributors);
             case 2:
-                return replaceContributors(assignments, contributors);
+                return operatorTwo(assignments, projects, contributors);
             default:
                 return assignments;
         }
@@ -82,98 +80,15 @@ public class IteratedLocalSearch {
         return assignments;
     }
 
-
-    private static List<Assignment> removeProject(List<Assignment> assignments, List<Contributor> contributors) {
-        int removeCount = (int) Math.ceil(assignments.size() * PERCENTAGE_OF_PROJECTS_TO_BE_REMOVED);
-        List<Assignment> removedAssignments = new ArrayList<>();
-        for (int i = 0; i < removeCount; i++) {
-            removedAssignments.add(assignments.remove(assignments.size() - 1));
-        }
-
-        for (Assignment assignment : removedAssignments) {
-            Project project = assignment.getProject();
-            Map<Integer, entities.Contributor> contributorMap = assignment.getRoleWithContributorMap();
-            for (Integer index : contributorMap.keySet()) {
-                Map<String, Integer> contributorSkillLevel = contributorMap.get(index).getSkills().stream().collect(
-                        Collectors.toMap(Skill::getName, Skill::getLevel, (existingValue, newValue) -> existingValue));
-
-                Skill skill = project.getSkills().get(index - 1);
-
-                if (contributorSkillLevel.containsKey(skill.getName())) {
-                    if (skill.getLevel() == contributorSkillLevel.get(skill.getName())
-                            || skill.getLevel() == contributorSkillLevel.get(skill.getName()) - 1) {
-                        for (Contributor contributor : contributors) {
-                            if (Objects.equals(contributor.getName(), contributorMap.get(index).getName())) {
-                                for (Skill contributorSkill : contributor.getSkills()) {
-                                    if (Objects.equals(skill.getName(), contributorSkill.getName())) {
-                                        skill.setLevel(skill.getLevel() - 1);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    private static List<Assignment> operatorOne(List<Assignment> assignments, List<Project> projects, List<Contributor> contributors) {
 
         return assignments;
     }
 
+    private static List<Assignment> operatorTwo(List<Assignment> assignments, List<Project> projects, List<Contributor> contributors) {
 
-    private static List<Assignment> replaceContributors(List<Assignment> assignments, List<Contributor> contributors) {
-        Set<UUID> assignedContributorIds = assignments.stream()
-                .flatMap(a -> a.getRoleWithContributorMap().values().stream())
-                .map(Contributor::getId)
-                .collect(Collectors.toSet());
-
-        Set<UUID> contributorIds = contributors.stream().map(Contributor::getId).collect(Collectors.toSet());
-
-        List<Contributor> unassignedContributors = contributors.stream()
-                .filter(c -> !assignedContributorIds.contains(c.getId()))
-                .collect(Collectors.toList());
-
-        int limit = (int) (assignments.size() * PERCENTAGE_OF_ASSIGNMENTS_TO_REPLACE_CONTRIBUTORS);
-
-        List<Assignment> newAssignments = new ArrayList<>(assignments);
-        for (int i = 0; i < limit; i++) {
-            Assignment assignment = newAssignments.get(i);
-            boolean replaced = false;
-
-            for (Map.Entry<Integer, Contributor> entry : new HashMap<>(assignment.getRoleWithContributorMap()).entrySet()) {
-                Contributor contributor = entry.getValue();
-
-                if (!contributorIds.contains(contributor.getId())) {
-                    for (Contributor unassignedContributor : unassignedContributors) {
-                        if (hasSameOrHigherSkills(contributor, unassignedContributor)) {
-                            assignment.getRoleWithContributorMap().put(entry.getKey(), unassignedContributor);
-                            unassignedContributors.remove(unassignedContributor);
-                            replaced = true;
-                            break;
-                        }
-                    }
-                }
-                if (replaced)
-                    break;
-            }
-        }
-
-        return newAssignments;
+        return assignments;
     }
-
-
-    private static boolean hasSameOrHigherSkills(Contributor contributor, Contributor unassignedContributor) {
-        Map<String, Skill> contributorSkillsMap = contributor.getSkills().stream().collect(Collectors.toMap(Skill::getName, Function.identity()));
-        for (Skill skill : unassignedContributor.getSkills()) {
-            if (!contributorSkillsMap.containsKey(skill.getName())) {
-                return false;
-            }
-            if (contributorSkillsMap.get(skill.getName()).getLevel() > skill.getLevel()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 
     private static List<Assignment> copySolution(List<Assignment> assignments) {
         return assignments.stream().map(Assignment::deepCopy).collect(Collectors.toList());
@@ -190,14 +105,10 @@ public class IteratedLocalSearch {
 
 
     private static List<Assignment> perturb(List<Assignment> assignments) {
-        int numSwaps = (int) (assignments.size() * PERTURB_PERCENTAGE);
 
-        List<Assignment> perturbedList = new ArrayList<>(assignments);
-        for (int i = 0; i < numSwaps; i++) {
-            int index = new Random().nextInt(perturbedList.size() - 1);
-            Collections.swap(perturbedList, index, index + 1);
-        }
-        return perturbedList;
+        // add a different perturb operation
+
+        return assignments;
     }
 
 
